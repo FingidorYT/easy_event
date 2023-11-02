@@ -13,5 +13,8 @@ class Empresa extends Model
         'nit_empresa', 'direccion_empresa', 'nombre_empresa', 'telefono_empresa', 'email_empresa', 'user_id'
     ];
 
+    public function user () {
+        return $this->belongsTo(User::class, 'user_id', 'id');   
+    }
 
 }
