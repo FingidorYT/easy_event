@@ -18,11 +18,11 @@ class CreateProductosTable extends Migration
             $table->integer('codigo');
             $table->bigInteger('precio');
             $table->string('nombre_producto');
-            $table->string('cantidad_disponible');
-            $table->string('cantidad_inventario');
-            $table->bigInteger('empresas_id'); 
+            $table->integer('cantidad_disponible');
+            $table->integer('cantidad_inventario');
+            $table->foreignId('empresas_id'); 
             $table->foreign('empresas_id')->references('id')->on('empresas');
-            $table->bigInteger('categorias_id'); 
+            $table->foreignId('categorias_id'); 
             $table->foreign('categorias_id')->references('id')->on('categorias');
 
             //$table->timestamps();
