@@ -15,8 +15,8 @@ class CreateAlquilersTable extends Migration
     {
         Schema::create('alquilers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('usuario_id');
-            $table->foreign('usuario_id')->reference('id')->on('users');
+            $table->foreignId('user_id');
+            $table->foreign('user_id')->reference('id')->on('users');
             $table->string('metodo_pago');
             $table->string('lugar_entrega');
             $table->date('fecha_alquiler');
