@@ -39,6 +39,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+
+
+    public function empresa () {
+        return $this->hasOne(Empresa::class, 'user_id', 'id');   
+    }
+
+
+
     public function favorito() {
         return $this->hasMany(Favorito::class, 'user_id', 'id');
     }
