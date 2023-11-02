@@ -39,5 +39,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+
+    public function empresa () {
+        return $this->hasOne(Empresa::class, 'user_id', 'id');   
+    }
+
+
     public $timestamps= false;
 }
