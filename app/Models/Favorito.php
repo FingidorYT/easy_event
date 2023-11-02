@@ -12,4 +12,12 @@ class Favorito extends Model
     protected $fillable = [
         'producto_id', 'user_id',
     ];
+
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function producto() {
+        return $this->belongsTo(Producto::class, 'producto_id', 'id');
+    }
 }
