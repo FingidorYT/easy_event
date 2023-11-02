@@ -39,6 +39,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function favorito() {
+        return $this->hasMany(Favorito::class, 'user_id', 'id');
+    }
+
     public $timestamps= false;
 
     public function alquiler(){

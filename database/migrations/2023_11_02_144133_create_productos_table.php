@@ -20,10 +20,10 @@ class CreateProductosTable extends Migration
             $table->string('nombre_producto');
             $table->integer('cantidad_disponible');
             $table->integer('cantidad_inventario');
-            $table->foreignId('empresas_id'); 
-            $table->foreign('empresas_id')->references('id')->on('empresas');
-            $table->foreignId('categorias_id'); 
-            $table->foreign('categorias_id')->references('id')->on('categorias');
+            $table->foreignId('empresa_id'); 
+            $table->foreign('empresa_id')->references('id')->on('empresas');
+            $table->foreignId('categoria_id'); 
+            $table->foreign('categoria_id')->references('id')->on('categorias');
 
             //$table->timestamps();
         });
