@@ -24,6 +24,7 @@ Route::group([
 ], function () {
     Route::post('login', [AuthController::class,'login']);
     Route::post('signup', [AuthController::class,'signUp']);
+    Route::post('signup', [AuthController::class,'signUpEmpresario']);
   
     Route::group([
       'middleware' => 'auth:api'
