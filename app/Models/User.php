@@ -44,4 +44,12 @@ class User extends Authenticatable
     }
 
     public $timestamps= false;
+
+    public function alquiler(){
+        return $this->hasmany(Alquiler::class, 'user_id','id');
+    }
+
+    public function rol(){
+        return $this->belongsTo(Rol::class, 'rol_id','id');
+    }
 }
