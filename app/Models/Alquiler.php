@@ -12,4 +12,9 @@ class Alquiler extends Model
     protected $fillable = [
         'usuario_id', 'metodo_pago', 'lugar_entrega', 'fecha_alquiler', 'fecha_devolucion',
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id','id');
+    }
 }
+
