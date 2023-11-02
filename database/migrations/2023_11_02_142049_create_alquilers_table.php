@@ -17,7 +17,6 @@ class CreateAlquilersTable extends Migration
             $table->id();
             $table->foreignId('usuario_id');
             $table->foreign('usuario_id')->reference('id')->on('users');
-            $table->integer('id_alquiler');
             $table->string('metodo_pago');
             $table->string('lugar_entrega');
             $table->date('fecha_alquiler');
