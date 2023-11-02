@@ -20,8 +20,8 @@ class CreateEmpresasTable extends Migration
         $table->string('nombre_empresa');
         $table->bigInteger('telefono_empresa');
         $table->string('email_empresa');
-        $table->foreignId('users_id'); 
-        $table->foreign('users_id')->references('id')->on('users');
+        $table->foreignId('user_id'); 
+        $table->foreign('user_id')->references('id')->on('users');
          //$table->timestamps();
     });
 }
