@@ -15,6 +15,14 @@ class Producto extends Model
 
     public function categoria () {
         return $this->belongsTo(Categoria::class, 'categoria_id', 'id');
+
+    public function productosHasAlquiler() {
+        return $this->hasMany(AlquilerHasProducto::class, 'producto_id', 'id');
+    }
+
+    public function favorito() {
+        return $this->hasMany(Favorito::class, 'producto_id', 'id');
+
     }
 
 }
