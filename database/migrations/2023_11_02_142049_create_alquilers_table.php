@@ -21,6 +21,7 @@ class CreateAlquilersTable extends Migration
             $table->string('lugar_entrega');
             $table->date('fecha_alquiler');
             $table->date('fecha_devolucion');
+            $table->string('estado');
             // $table->timestamps();
         });
     }

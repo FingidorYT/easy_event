@@ -16,7 +16,7 @@ class AuthController extends Controller
     public function signUp(Request $request)
     {
         $request->validate([
-            'rol_id' => 'required|int',
+            'rol_id' => 'required|numeric',
             'cedula' => 'required|numeric|unique:users',
             'nombre' => 'required|string',
             'apellido' => 'required|string',
@@ -48,12 +48,12 @@ class AuthController extends Controller
     {
         $request->validate([
             'rol_id' => 'required|string',
-            'cedula' => 'required|bigInteger|unique:users',
+            'cedula' => 'required|unique:users',
             'nombre' => 'required|string',
             'apellido' => 'required|string',
             'email' => 'required|string|email|unique:users',
             'fecha_nacimiento' => 'required|date',
-            'telefono' => 'required|bigInteger',
+            'telefono' => 'required',
             'password' => 'required|string',
             'nit_empresa' => 'required|numeric|unique:empresas',
             'direccion_empresa' => 'required|string',
@@ -114,6 +114,7 @@ class AuthController extends Controller
         $token->save();
 
         return response()->json([
+            'user' => $user,
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString()
