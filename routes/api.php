@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\EmpresaApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +25,7 @@ Route::group([
 ], function () {
     Route::post('login', [AuthController::class,'login']);
     Route::post('signup', [AuthController::class,'signUp']);
-    Route::post('signup', [AuthController::class,'signUpEmpresario']);
+    Route::post('signup_empresario', [AuthController::class,'signUpEmpresario']);
   
     Route::group([
       'middleware' => 'auth:api'
@@ -33,3 +34,5 @@ Route::group([
         Route::get('user', [AuthController::class,'user']);
     });
 });
+
+Route::apiResource('empresas', EmpresaApiController::class);
