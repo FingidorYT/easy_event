@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\Favorito;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,7 @@ Route::group([
       'middleware' => 'auth:api'
     ], function() {
         Route::get('logout', [AuthController::class,'logout']);
+        Route::resource('Favorito', FavoritoApiController::class);
         Route::get('user', [AuthController::class,'user']);
     });
 });
