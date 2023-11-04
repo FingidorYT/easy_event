@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EmpresaApiController;
+use App\Http\Controllers\API\CategoriaApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,8 +32,10 @@ Route::group([
       'middleware' => 'auth:api'
     ], function() {
         Route::get('logout', [AuthController::class,'logout']);
+        Route::apiResource('categorias', CategoriaApiController::class);
+        Route::apiResource('empresas', EmpresaApiController::class);
         Route::get('user', [AuthController::class,'user']);
     });
 });
 
-Route::apiResource('empresas', EmpresaApiController::class);
+
