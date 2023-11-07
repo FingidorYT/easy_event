@@ -70,9 +70,23 @@ class AlquilerApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $user_id = $request->user_id;
+        $alquiler = Alquiler::where('user_id', $user_id)->where('estado', "pendiente");
+        if ($alquiler->first()) {
+            $request->validate([
+                "user_id" => "required|numeric",
+                "metodo_pago" => "required|string",
+                "lugar_entrega" => "required|string",
+                "fecha_alquiler" => "required|date",
+                "fecha_devolucion" => "required|date",
+            ]);
+            $alquiler->update($request->all());
+            return response()->json($alquiler, 200);
+        }else {
+            echo "No tiene alquileres pendientes";
+        }
     }
 
     /**
