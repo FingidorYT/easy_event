@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Empresa;
 use carbon\carbon;
 use Auth;
 
@@ -16,7 +17,6 @@ class AuthController extends Controller
     public function signUp(Request $request)
     {
         $request->validate([
-            'rol_id' => 'required|numeric',
             'cedula' => 'required|numeric|unique:users',
             'nombre' => 'required|string',
             'apellido' => 'required|string',
@@ -29,7 +29,7 @@ class AuthController extends Controller
         ]);
 
         $user=User::create([
-            'rol_id' => $request->rol_id,
+            'rol_id' => "1",
             'cedula' => $request->cedula,
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -47,7 +47,6 @@ class AuthController extends Controller
     public function signUpEmpresario(Request $request)
     {
         $request->validate([
-            'rol_id' => 'required|string',
             'cedula' => 'required|unique:users',
             'nombre' => 'required|string',
             'apellido' => 'required|string',
@@ -62,17 +61,8 @@ class AuthController extends Controller
             'email_empresa' => 'required|string|unique:empresas',
         ]);
 
-        Empresa::create([
-            'nit_empresa' => $request->rol_id,
-            'direccion_empresa' => $request->cedula,
-            'nombre_empresa' => $request->nombre,
-            'telefono_empresa' => $request->telefono,
-            'email_empresa' => $request->email,
-            'usario_id' => $user->id,
-        ]);
-
         $user=User::create([
-            'rol_id' => $request->rol_id,
+            'rol_id' => "2",
             'cedula' => $request->cedula,
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -81,6 +71,16 @@ class AuthController extends Controller
             'telefono' => $request->telefono,
             'password' => bcrypt($request->password)
         ]);
+
+        Empresa::create([
+            'nit_empresa' => $request->nit_empresa,
+            'direccion_empresa' => $request->cedula,
+            'nombre_empresa' => $request->nombre,
+            'telefono_empresa' => $request->telefono,
+            'email_empresa' => $request->email,
+            'user_id' => $user->id,
+        ]);
+
 
         return response()->json([
             'message' => 'Successfully created user!'
