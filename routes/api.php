@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\ProductoApiController;
 use App\Http\Controllers\API\Favorito;
 
 /*
@@ -25,7 +26,7 @@ Route::group([
 ], function () {
     Route::post('login', [AuthController::class,'login']);
     Route::post('signup', [AuthController::class,'signUp']);
-    Route::post('signup', [AuthController::class,'signUpEmpresario']);
+    Route::post('signup/empresario', [AuthController::class,'signUpEmpresario']);
   
     Route::group([
       'middleware' => 'auth:api'
@@ -33,5 +34,11 @@ Route::group([
         Route::get('logout', [AuthController::class,'logout']);
         Route::resource('Favorito', FavoritoApiController::class);
         Route::get('user', [AuthController::class,'user']);
+        Route::get('producto', [ProductoApiController::class, 'index']);
+        Route::post('producto', [ProductoApiController::class, 'store']);
+        Route::get('producto/search', [ProductoApiController::class, 'search']);
+        Route::put('producto/{id}',[ProductoApiController::class, 'update']);
+        Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
     });
 });
+// Route::get('/producto',[ProductoApiController::class, 'buscar']);

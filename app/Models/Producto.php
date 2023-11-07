@@ -10,12 +10,12 @@ class Producto extends Model
     use HasFactory;
 
     protected $fillable = [
-        'codigo', 'precio', 'nombre', 'cantidad_disponible', 'cantidad_inventario', 'categoria_id', 'empresa_id'
+        'codigo', 'precio', 'nombre_producto', 'cantidad_disponible', 'cantidad_inventario', 'categoria_id', 'empresa_id'
     ];
 
     public function categoria () {
         return $this->belongsTo(Categoria::class, 'categoria_id', 'id');
-
+    }
     public function productosHasAlquiler() {
         return $this->hasMany(AlquilerHasProducto::class, 'producto_id', 'id');
     }
@@ -24,5 +24,6 @@ class Producto extends Model
         return $this->hasMany(Favorito::class, 'producto_id', 'id');
 
     }
+    public $timestamps = false;
 
 }

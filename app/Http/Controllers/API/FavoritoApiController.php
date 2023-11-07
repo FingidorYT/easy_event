@@ -15,9 +15,9 @@ class FavoritoApiController extends Controller
      */
     public function index()
     {
-        //
+        //pagina de inicio
     }
-
+// EL CREATE es el formulario donde nosotros agregamos datos
     /**
      * Store a newly created resource in storage.
      *
@@ -26,7 +26,7 @@ class FavoritoApiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //sirve para guardar datos en la bd
     }
 
     /**
@@ -37,9 +37,11 @@ class FavoritoApiController extends Controller
      */
     public function show($id)
     {
-        //
+        //registro de la tabla
     }
 
+    // EL EDIT sirve para traer los 
+    // datos que se van a editar y colocarlos en un formulario
     /**
      * Update the specified resource in storage.
      *
@@ -49,7 +51,7 @@ class FavoritoApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //actualiza datos en la bd
     }
 
     /**
@@ -60,6 +62,6 @@ class FavoritoApiController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //elimina un registro
     }
 }
