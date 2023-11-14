@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Categoria;
+use App\Models\Empresa;
 use Illuminate\Http\Request;
 
-
-class CategoriaApiController extends Controller
+class EmpresaApiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,8 +15,8 @@ class CategoriaApiController extends Controller
      */
     public function index()
     {
-        $categorias = Categoria::all();
-        return response()->json(['data' => $categorias], 200);
+        $empresas = Empresa::all();
+        return response()->json(['data' => $empresas], 200);
     }
 
 
@@ -30,12 +29,15 @@ class CategoriaApiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string',
-            'descripcion' => 'required',
+            'nit_empresa' => 'required|numeric',
+            'direccion_empresa' => 'required|string',
+            'nombre_empresa' => 'required|string',
+            'telefono_empresa' => 'required|numeric',
+            'email_empresa' => 'required|email',
         ]);
 
-        $categoria = Categoria::create($request->all());
-        return response()->json(['data' => $categoria], 201);
+        $empresa = Empresa::create($request->all());
+        return response()->json(['data' => $empresa], 201);
     }
 
 
@@ -45,9 +47,9 @@ class CategoriaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Categoria $categoria)
+    public function show(Empresa $empresa)
     {
-        return response()->json(['data' => $categoria], 200);
+        return response()->json(['data' => $empresa], 200);
     }
 
 
@@ -58,15 +60,18 @@ class CategoriaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Categoria $categoria)
+    public function update(Request $request, Empresa $empresa)
     {
         $request->validate([
-            'nombre' => 'required|string',
-            'descripcion' => 'required',
+            'nit_empresa' => 'numeric',
+            'direccion_empresa' => 'string',
+            'nombre_empresa' => 'string',
+            'telefono_empresa' => 'numeric',
+            'email_empresa' => 'email',
         ]);
 
-        $categoria->update($request->all());
-        return response()->json(['data' => $categoria], 200);
+        $empresa->update($request->all());
+        return response()->json(['data' => $empresa], 200);
     }
 
 
@@ -76,9 +81,9 @@ class CategoriaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Categoria $categoria)
+    public function destroy(Empresa $empresa)
     {
-        $categoria->delete();
+        $empresa->delete();
         return response(null, 204);
     }
 

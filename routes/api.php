@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProductoApiController;
 use App\Http\Controllers\API\FavoritoApiController;
+use App\Http\Controllers\API\AlquilerApiController;
+use App\Http\Controllers\API\CategoriaApiController;
+use App\Http\Controllers\API\EmpresaApiController;
+
 
 /*
 |--------------------------------------------------------------------------
