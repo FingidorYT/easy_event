@@ -9,7 +9,7 @@ class Empresa extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    public $timestamp = false;
 
     protected $fillable = [
         'nit_empresa', 'direccion_empresa', 'nombre_empresa', 'telefono_empresa', 'email_empresa', 'user_id'
