@@ -42,5 +42,12 @@ Route::group([
         Route::post('alquiler/guardar', [AlquilerApiController::class, 'store']);
         Route::get('logout', [AuthController::class,'logout']);
         Route::get('user', [AuthController::class,'user']);
+        Route::get('producto', [ProductoApiController::class, 'index']);
+        Route::post('producto', [ProductoApiController::class, 'store']);
+        Route::get('producto/search', [ProductoApiController::class, 'search']);
+        Route::put('producto/{id}',[ProductoApiController::class, 'update']);
+        Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
+        Route::post('/agregar-favorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
+        Route::post('/eliminar-favorito/{producto}', [FavoritoApiController::class, 'eliminarFavorito']);
     });
 });
