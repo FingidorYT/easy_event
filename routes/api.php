@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProductoApiController;
-use App\Http\Controllers\API\Favorito;
+use App\Http\Controllers\API\FavoritoApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +39,7 @@ Route::group([
         Route::get('producto/search', [ProductoApiController::class, 'search']);
         Route::put('producto/{id}',[ProductoApiController::class, 'update']);
         Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
+
         Route::post('/agregar-favorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
         Route::post('/eliminar-favorito/{producto}', [FavoritoApiController::class, 'eliminarFavorito']);
     });
