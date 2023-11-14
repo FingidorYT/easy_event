@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Producto;
 
 class ProductoApiController extends Controller
 {
@@ -15,6 +16,8 @@ class ProductoApiController extends Controller
     public function index()
     {
         //
+        $producto = Producto::all();
+        return response()->json(['Producto' => $producto]);
     }
 
     /**
@@ -25,7 +28,43 @@ class ProductoApiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //validacion de datos
+        $this->validate($request, [
+            'codigo' => 'required',
+            'precio' => 'required',
+            'nombre_producto' => 'required',
+            'cantidad_disponible' => 'required',
+            'cantidad_inventario' => 'required',
+            'categoria_id' => 'required',
+            'empresa_id' => 'required',
+
+        ]);
+
+        // Crear un nuevo producto
+        $producto = Producto::create([
+            'codigo' => $request->codigo,
+            'precio' => $request->precio,
+            'nombre_producto' => $request->nombre_producto,
+            'cantidad_disponible' => $request->cantidad_disponible,
+            'cantidad_inventario' => $request->cantidad_inventario,
+            'categoria_id' => $request->categoria_id,
+            'empresa_id' => $request->empresa_id,
+        ]);
+
+        return response()->json(['Producto' => $producto], 201);
+    }
+
+    public function search(Request $request){
+        $busqueda = $request->busqueda;
+
+        //return response()->json(['Producto' => $busqueda]);
+
+        $producto = Producto::where('codigo', 'like', "%$busqueda%")
+                            ->orWhere('nombre_producto', 'like',"%$busqueda%")
+                            ->get();
+        
+
+        return response()->json(['Producto' => $producto]);
     }
 
     /**
@@ -48,7 +87,36 @@ class ProductoApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //validamos datos
+        $this->validate($request, [
+            'codigo' => 'required',
+            'precio' => 'required',
+            'nombre_producto' => 'required',
+            'cantidad_disponible' => 'required',
+            'cantidad_inventario' => 'required',
+            'categoria_id' => 'required',
+            'empresa_id' => 'required',
+        ]);
+        // buscar el producto por id o no se si por codigo
+        $producto = Producto::find($id);
+
+        // un if x si no se encuentra
+        if(!$producto){
+            return response()->json(['error' => 'Producto no encontrado'], 404);
+        }
+
+        //nuevos datos
+        $producto->update([
+        'codigo' => $request->codigo,
+        'precio' => $request->precio,
+        'nombre_producto' => $request->nombre_producto,
+        'cantidad_disponible' => $request->cantidad_disponible,
+        'cantidad_inventario' => $request->cantidad_inventario,
+        'categoria_id' => $request->categoria_id,
+        'empresa_id' => $request->empresa_id,
+        ]);
+        return response()->json(['message' => 'Producto actualizado', 'Producto'=>$producto]);
+
     }
 
     /**
@@ -59,6 +127,15 @@ class ProductoApiController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //encontrar por id
+        $producto = Producto::find($id);
+
+        if(!$producto){
+            return response()->json(['error' => 'Producto no encontrado'], 404);
+        }
+        // eliminamos el producto
+        $producto->delete();
+
+        return response()->json(['message'=>'Producto eliminado'], 200);
     }
 }
