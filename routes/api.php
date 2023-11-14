@@ -39,6 +39,8 @@ Route::group([
         Route::get('producto/search', [ProductoApiController::class, 'search']);
         Route::put('producto/{id}',[ProductoApiController::class, 'update']);
         Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
+        Route::post('/agregarFavorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
+        Route::post('/eliminarFavorito/{producto}', [FavoritoApiController::class, 'eliminarFavorito']);
     });
 });
 // Route::get('/producto',[ProductoApiController::class, 'buscar']);

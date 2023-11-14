@@ -17,16 +17,32 @@ class FavoritoApiController extends Controller
     {
         //pagina de inicio
     }
-// EL CREATE es el formulario donde nosotros agregamos datos
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         //sirve para guardar datos en la bd
+    }
+
+    public function agregarFavorito(Request $request)
+    {
+        // obtener el usuario autenticado
+        $usuario = auth::user();
+
+        // verficar si el producto ya está en fav
+        $favoritoExis = Favorito::where('user_id',$usuario->id)
+                                ->where('producto_id', $request)
+                                ->first();
+        if ($favoritoExis) {
+            return response()->json(['mensaje' => 'El producto ya está en favoritos']);
+        }
+
+// agg fav
+    $favorito = new Favorito();
+    $favorito->user_id = $usuario->id;
+    $favorito->producto_id = $request;
+    $favorito->save();
+
+    return response()->json(['mensaje' => 'Producto agregado a favoritos']);
     }
 
     /**
@@ -63,5 +79,19 @@ class FavoritoApiController extends Controller
     public function destroy($id)
     {
         //elimina un registro
+       
     }
+    public function eliminarFavorito($request)
+    {
+     // obtener el usuario auten
+     $usuario = auth::user();
+
+     // buscar y eliminar producto de fav
+     Favorito::where('user_id', $usuario->id)
+             ->where('productos_id', $request)
+             ->delete();
+
+     return response()->json(['mensaje' => 'Producto eliminado de favoritos']);
+    }
+
 }
