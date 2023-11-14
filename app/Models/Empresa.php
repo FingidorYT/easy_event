@@ -10,6 +10,7 @@ class Empresa extends Model
     use HasFactory;
 
     public $timestamp = false;
+
     protected $fillable = [
         'nit_empresa', 'direccion_empresa', 'nombre_empresa', 'telefono_empresa', 'email_empresa', 'user_id'
     ];
@@ -17,5 +18,4 @@ class Empresa extends Model
     public function user () {
         return $this->belongsTo(User::class, 'user_id', 'id');   
     }
-
 }
