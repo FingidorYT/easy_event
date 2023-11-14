@@ -10,16 +10,19 @@ class Alquiler extends Model
     use HasFactory;
 
     protected $fillable = [
-        'usuario_id', 'metodo_pago', 'lugar_entrega', 'fecha_alquiler', 'fecha_devolucion',
+        'user_id', 'metodo_pago', 'lugar_entrega', 'fecha_alquiler', 'fecha_devolucion', 'estado',
     ];
 
 
     public function user(){
         return $this->belongsTo(User::class, 'user_id','id');
-      
+    }
     public function alquilerHasProductos() {
         return $this->hasMany(AlquilerHasProducto::class, 'alquiler_id', 'id');
 
     }
+
+    public $timestamps= false;
+
 }
 
