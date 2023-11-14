@@ -19,6 +19,4 @@ class Empresa extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');   
     }
 
-    public $timestamps = false;
-
 }
