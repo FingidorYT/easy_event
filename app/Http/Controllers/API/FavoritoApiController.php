@@ -16,33 +16,37 @@ class FavoritoApiController extends Controller
     public function index()
     {
         //pagina de inicio
+        $favorito = Favorito::all();
+        return response()->json(['Favorito' => $favorito]);
     }
 
     public function store(Request $request)
     {
         //sirve para guardar datos en la bd
+        //validacion de datos
+        $this->validate($request, [
+
+            'producto_id' => 'required',
+            'user_id' => 'required',
+
+        ]);
+
+        $favorito = Favorito::add([
+            'producto_id' => $request -> producto_id,
+            'user_id' => $request -> user_id,
+
+        ]);
+        return response()->json(['Favorito' => $favorito], 201);
     }
 
-    public function agregarFavorito(Request $request)
-    {
-        // obtener el usuario autenticado
-        $usuario = auth::user();
+    public function search(Request $request){
+        $busqueda = $request->busqueda;
 
-        // verficar si el producto ya está en fav
-        $favoritoExis = Favorito::where('user_id',$usuario->id)
-                                ->where('producto_id', $request)
-                                ->first();
-        if ($favoritoExis) {
-            return response()->json(['mensaje' => 'El producto ya está en favoritos']);
-        }
+        $favorito = Favorito::where('producto_id', 'like', "%busqueda%")
+                            ->orWhere('user_id', 'like', "%busqueda%")
+                            ->get();
 
-// agg fav
-    $favorito = new Favorito();
-    $favorito->user_id = $usuario->id;
-    $favorito->producto_id = $request;
-    $favorito->save();
-
-    return response()->json(['mensaje' => 'Producto agregado a favoritos']);
+        return response()->json(['Producto' => $favorito]);
     }
 
     /**
@@ -78,20 +82,16 @@ class FavoritoApiController extends Controller
      */
     public function destroy($id)
     {
-        //elimina un registro
+        // encontrar por id
+        $favorito = Favorito::find($id);
+        if(!$favorito){
+            return response()->json(['error' => 'Favorito no encontrado', 404]);
+        }
+        //elimina el favorito
+        $favorito->delete();
+
+        return response()->json(['message' => 'Producto eliminado'], 200);
        
-    }
-    public function eliminarFavorito($request)
-    {
-     // obtener el usuario auten
-     $usuario = auth::user();
-
-     // buscar y eliminar producto de fav
-     Favorito::where('user_id', $usuario->id)
-             ->where('productos_id', $request)
-             ->delete();
-
-     return response()->json(['mensaje' => 'Producto eliminado de favoritos']);
     }
 
 }
