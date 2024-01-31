@@ -14,6 +14,19 @@ class AuthController extends Controller
     /**
      * Registro de usuario
      */
+    public function users(Request $request)
+    {
+        $user = $request->user();
+        if($user->rol_id == 1 ){
+            $users = User::all();
+            return response()->json(['Users' => $users]);
+        }
+
+        
+        return response()->json(['NO TIENES ACCESO']);
+
+    }
+
     public function signUp(Request $request)
     {
         $request->validate([
@@ -71,7 +84,7 @@ class AuthController extends Controller
             'telefono' => $request->telefono,
             'password' => bcrypt($request->password)
         ]);
-
+ try {
         Empresa::create([
             'nit_empresa' => $request->nit_empresa,
             'direccion_empresa' => $request->cedula,
@@ -80,7 +93,12 @@ class AuthController extends Controller
             'email_empresa' => $request->email,
             'user_id' => $user->id,
         ]);
-
+    } catch (Throwable $e) {
+        $user->delete();
+        return response()->json([
+            'message' => 'Error'
+        ], 500);
+    }
 
         return response()->json([
             'message' => 'Successfully created user!'
@@ -138,6 +156,8 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+        $user->rol;
+        return response()->json($user);
     }
 }

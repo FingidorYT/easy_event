@@ -5,16 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Rol extends Model
+class Sanciones extends Model
 {
     use HasFactory;
 
     public $timestamps = false;
 
-    protected $fillable = ['nombre'];
+    protected $fillable = ['motivo_reporte', 'estado', 'motivo_sancion', 'duracion'];
 
     public function user(){
-        return $this->belongsTo(User::class, 'rol_id','id');
+        return $this->belongsTo(User::class, 'user_id','id');
     }
 }
-

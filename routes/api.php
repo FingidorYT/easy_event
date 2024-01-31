@@ -32,21 +32,31 @@ Route::group([
     Route::post('signup', [AuthController::class,'signUp']);
     Route::post('signup_empresario', [AuthController::class,'signUpEmpresario']);
   
-    Route::group([
-      'middleware' => 'auth:api'
-    ], function() {
-        Route::apiResource('producto', ProductoApiController::class);
-        Route::post('alquiler', [AlquilerApiController::class, 'show']);
-        Route::post('alquiler/actualizar', [AlquilerApiController::class, 'update']);
-        Route::post('alquiler/guardar', [AlquilerApiController::class, 'store']);
-        Route::get('logout', [AuthController::class,'logout']);
-        Route::get('user', [AuthController::class,'user']);
-        Route::get('producto', [ProductoApiController::class, 'index']);
-        Route::post('producto', [ProductoApiController::class, 'store']);
-        Route::get('producto/search', [ProductoApiController::class, 'search']);
-        Route::put('producto/{id}',[ProductoApiController::class, 'update']);
-        Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
-        Route::post('/agregar-favorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
-        Route::post('/eliminar-favorito/{producto}', [FavoritoApiController::class, 'eliminarFavorito']);
-    });
 });
+
+Route::group([
+    'middleware' => 'auth:api'
+  ], function() {
+      Route::get('users', [AuthController::class, 'users']);
+      Route::apiResource('producto', ProductoApiController::class);
+      Route::apiResource('empresa', EmpresaApiController::class);
+      Route::apiResource('categoria', CategoriaApiController::class);
+
+
+      /*Route::delete('categoria/{id}', [CategoriaApiController::class, 'destroy']);
+      Route::post('alquiler', [AlquilerApiController::class, 'show']);
+      Route::post('alquiler/actualizar', [AlquilerApiController::class, 'update']);
+      Route::post('alquiler/guardar', [AlquilerApiController::class, 'store']);
+      Route::get('logout', [AuthController::class,'logout']);
+      Route::get('user', [AuthController::class,'user']);
+      Route::get('producto/search', [ProductoApiController::class, 'search']);
+      Route::put('producto/{id}',[ProductoApiController::class, 'update']);
+      Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
+      Route::post('/agregar-favorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
+      Route::post('/eliminar-favorito/{producto}', [FavoritoApiController::class, 'eliminarFavorito']);*/
+
+      
+  });
+
+
+

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRolsTable extends Migration
+class CreateSancionesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateRolsTable extends Migration
      */
     public function up()
     {
-        Schema::create('rols', function (Blueprint $table) {
+        Schema::create('sanciones', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
             $table->timestamps();
+            $table->string('motivo_reporte');
+            $table->string('estado');
+            $table->string('motivo_sancion')->nullable();
+            $table->integer('duracion')->nullable();
         });
     }
 
@@ -27,6 +30,6 @@ class CreateRolsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rols');
+        Schema::dropIfExists('sanciones');
     }
 }

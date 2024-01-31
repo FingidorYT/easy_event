@@ -75,7 +75,8 @@ class ProductoApiController extends Controller
      */
     public function show($id)
     {
-        //
+        $producto= Producto::find($id);
+        return response()->json($producto,200);
     }
 
     /**
