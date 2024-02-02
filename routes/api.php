@@ -8,6 +8,8 @@ use App\Http\Controllers\API\ProductoApiController;
 use App\Http\Controllers\API\FavoritoApiController;
 use App\Http\Controllers\API\CategoriaApiController;
 use App\Http\Controllers\API\EmpresaApiController;
+use App\Http\Controllers\API\SancionApiController;
+
 
 
 /*
@@ -38,6 +40,8 @@ Route::group([
     'middleware' => 'auth:api'
   ], function() {
       Route::get('users', [AuthController::class, 'users']);
+      Route::delete('user/{id}', [AuthController::class, 'delete']);
+      Route::apiResource('sancion', SancionApiController::class);
       Route::apiResource('producto', ProductoApiController::class);
       Route::apiResource('empresa', EmpresaApiController::class);
       Route::apiResource('categoria', CategoriaApiController::class);

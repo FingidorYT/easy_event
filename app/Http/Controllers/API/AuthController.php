@@ -11,9 +11,7 @@ use Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * Registro de usuario
-     */
+    
     public function users(Request $request)
     {
         $user = $request->user();
@@ -22,10 +20,40 @@ class AuthController extends Controller
             return response()->json(['Users' => $users]);
         }
 
-        
         return response()->json(['NO TIENES ACCESO']);
 
     }
+
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user();
+        if ($user->rol_id == 1) {
+            $userdb = User::find($id);
+            if(!$userdb){
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
+            // eliminamos el producto
+            $userdb->delete();
+    
+            return response()->json(['message'=>'Usuario eliminado'], 200);
+        }
+        if ($user->rol_id !=1) {
+            $userdb = User::find($id);
+            if ($user->id == $userdb->id) {
+                $userdb->delete();
+                return response()->json(['message' => 'Usuario eliminado'], 200);
+            }
+            return response()->json(['error' => 'No puedes hacer eso'], 404);
+        }
+    }
+
+
+
+
+    /**
+     * Registro de usuario
+     */
+
 
     public function signUp(Request $request)
     {

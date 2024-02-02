@@ -11,7 +11,7 @@ class Sanciones extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['motivo_reporte', 'estado', 'motivo_sancion', 'duracion'];
+    protected $fillable = ['motivo_reporte', 'estado', 'motivo_sancion', 'duracion', 'user_id'];
 
     public function user(){
         return $this->belongsTo(User::class, 'user_id','id');

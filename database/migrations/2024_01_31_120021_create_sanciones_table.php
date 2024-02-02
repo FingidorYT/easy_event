@@ -15,11 +15,13 @@ class CreateSancionesTable extends Migration
     {
         Schema::create('sanciones', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->string('motivo_reporte');
             $table->string('estado');
             $table->string('motivo_sancion')->nullable();
             $table->integer('duracion')->nullable();
+            $table->foreignid('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->integer('usuario_reportado');
         });
     }
 
