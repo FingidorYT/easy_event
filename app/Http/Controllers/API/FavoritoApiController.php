@@ -17,19 +17,6 @@ class FavoritoApiController extends Controller
 
     public function store(Request $request)
     {
-        // Validar y guardar datos en la base de datos
-        $request->validate([
-            // Agrega las reglas de validación según tus necesidades
-        ]);
-
-        // Guardar en la base de datos usando Eloquent
-        Favorito::create($request->all());
-
-        return response()->json(['mensaje' => 'Datos guardados correctamente']);
-    }
-
-    public function agregarFavorito(Request $request)
-    {
         // Obtener el usuario autenticado
         $usuario = Auth::user();
 
@@ -54,7 +41,7 @@ class FavoritoApiController extends Controller
     public function show($id)
     {
         // Obtener y mostrar detalles de un favorito específico
-        $favorito = Favorito::find($id);
+        $favorito = Favorito::where('user_id', $id)->get();
 
         if (!$favorito) {
             return response()->json(['mensaje' => 'Favorito no encontrado'], 404);

@@ -45,7 +45,8 @@ Route::group([
       Route::apiResource('producto', ProductoApiController::class);
       Route::apiResource('empresa', EmpresaApiController::class);
       Route::apiResource('categoria', CategoriaApiController::class);
-
+      Route::apiResource('favorito', FavoritoApiController::class);
+      Route::post('producto/search', [ProductoApiController::class, 'search']);
 
       /*Route::delete('categoria/{id}', [CategoriaApiController::class, 'destroy']);
       Route::post('alquiler', [AlquilerApiController::class, 'show']);
@@ -53,7 +54,6 @@ Route::group([
       Route::post('alquiler/guardar', [AlquilerApiController::class, 'store']);
       Route::get('logout', [AuthController::class,'logout']);
       Route::get('user', [AuthController::class,'user']);
-      Route::get('producto/search', [ProductoApiController::class, 'search']);
       Route::put('producto/{id}',[ProductoApiController::class, 'update']);
       Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
       Route::post('/agregar-favorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
