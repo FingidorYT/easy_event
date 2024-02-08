@@ -70,7 +70,8 @@ class AuthController extends Controller
         ]);
 
         $user=User::create([
-            'rol_id' => "1",
+            'rol_id' => "3",
+            'estado' => "activo",
             'cedula' => $request->cedula,
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,

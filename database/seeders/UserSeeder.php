@@ -18,6 +18,5 @@ class UserSeeder extends Seeder
         User::create(['rol_id'=>1, 'cedula'=>1099735016, 'nombre'=>'Jeickssonn', 'apellido'=>'Rojas', 'email'=>'json@gmail.com', 'fecha_nacimiento'=>'2000-01-01', 'telefono'=>317423423,'estado'=>'pendiente', 'password'=>bcrypt('12345')]);
         User::create(['rol_id'=>1, 'cedula'=>1099735017, 'nombre'=>'Jaime', 'apellido'=>'Giraldo', 'email'=>'jaime@gmail.com', 'fecha_nacimiento'=>'2000-01-01', 'telefono'=>3177657324,'estado'=>'pendiente', 'password'=>bcrypt('12345')]);
         User::create(['rol_id'=>2, 'cedula'=>1052625534, 'nombre'=>'Empresario', 'apellido'=>'Empresario', 'email'=>'empresario@gmail.com', 'fecha_nacimiento'=>'2000-01-01', 'telefono'=>317545625,'estado'=>'pendiente', 'password'=>bcrypt('12345')]);
-
     }
 }
