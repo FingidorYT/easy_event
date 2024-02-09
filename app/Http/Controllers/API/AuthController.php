@@ -11,9 +11,50 @@ use Auth;
 
 class AuthController extends Controller
 {
+    
+    public function users(Request $request)
+    {
+        $user = $request->user();
+        if($user->rol_id == 1 ){
+            $users = User::all();
+            return response()->json(['Users' => $users]);
+        }
+
+        return response()->json(['NO TIENES ACCESO']);
+
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user();
+        if ($user->rol_id == 1) {
+            $userdb = User::find($id);
+            if(!$userdb){
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
+            // eliminamos el producto
+            $userdb->delete();
+    
+            return response()->json(['message'=>'Usuario eliminado'], 200);
+        }
+        if ($user->rol_id !=1) {
+            $userdb = User::find($id);
+            if ($user->id == $userdb->id) {
+                $userdb->delete();
+                return response()->json(['message' => 'Usuario eliminado'], 200);
+            }
+            return response()->json(['error' => 'No puedes hacer eso'], 404);
+        }
+    }
+
+
+
+
     /**
      * Registro de usuario
      */
+
+
     public function signUp(Request $request)
     {
         $request->validate([
@@ -29,7 +70,8 @@ class AuthController extends Controller
         ]);
 
         $user=User::create([
-            'rol_id' => "1",
+            'rol_id' => "3",
+            'estado' => "activo",
             'cedula' => $request->cedula,
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -71,7 +113,7 @@ class AuthController extends Controller
             'telefono' => $request->telefono,
             'password' => bcrypt($request->password)
         ]);
-
+ try {
         Empresa::create([
             'nit_empresa' => $request->nit_empresa,
             'direccion_empresa' => $request->cedula,
@@ -80,7 +122,12 @@ class AuthController extends Controller
             'email_empresa' => $request->email,
             'user_id' => $user->id,
         ]);
-
+    } catch (Throwable $e) {
+        $user->delete();
+        return response()->json([
+            'message' => 'Error'
+        ], 500);
+    }
 
         return response()->json([
             'message' => 'Successfully created user!'
@@ -113,6 +160,17 @@ class AuthController extends Controller
             $token->expires_at = Carbon::now()->addWeeks(1);
         $token->save();
 
+        if($user->rol->id == 2){
+            $empresa = Empresa::where('user_id', $user->id)->first();
+            return response()->json([
+                'user' => $user,
+                'empresa' => $empresa,
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString()
+            ]);
+        }
+
         return response()->json([
             'user' => $user,
             'access_token' => $tokenResult->accessToken,
@@ -138,6 +196,8 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+        $user->rol;
+        return response()->json($user);
     }
 }

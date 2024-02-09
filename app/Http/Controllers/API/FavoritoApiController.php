@@ -5,93 +5,103 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Favorito;
+use Illuminate\Support\Facades\Auth;
 
 class FavoritoApiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //pagina de inicio
-        $favorito = Favorito::all();
-        return response()->json(['Favorito' => $favorito]);
+        $favoritos = Favorito::all();
+        return response()->json(['Favoritos' => $favoritos]);
     }
 
     public function store(Request $request)
     {
-        //sirve para guardar datos en la bd
-        //validacion de datos
-        $this->validate($request, [
+        // Obtener el usuario autenticado
+        $usuario = Auth::user();
 
-            'producto_id' => 'required',
-            'user_id' => 'required',
+        // Verificar si el producto ya está en favoritos
+        $favoritoExis = Favorito::where('user_id', $usuario->id)
+                                ->where('producto_id', $request->producto_id)
+                                ->first();
 
+        if ($favoritoExis) {
+            return response()->json(['mensaje' => 'El producto ya está en favoritos']);
+        }
+
+        // Agregar favorito usando Eloquent
+        Favorito::create([
+            'user_id' => $usuario->id,
+            'producto_id' => $request->producto_id,
         ]);
 
-        $favorito = Favorito::add([
-            'producto_id' => $request -> producto_id,
-            'user_id' => $request -> user_id,
+        return response()->json(['mensaje' => 'Producto agregado a favoritos']);
 
-        ]);
-        return response()->json(['Favorito' => $favorito], 201);
     }
 
-    public function search(Request $request){
-        $busqueda = $request->busqueda;
-
-        $favorito = Favorito::where('producto_id', 'like', "%busqueda%")
-                            ->orWhere('user_id', 'like', "%busqueda%")
-                            ->get();
-
-        return response()->json(['Producto' => $favorito]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        //registro de la tabla
+        // Obtener y mostrar detalles de un favorito específico
+        $favorito = Favorito::where('user_id', $id)->get();
+
+        if (!$favorito) {
+            return response()->json(['mensaje' => 'Favorito no encontrado'], 404);
+        }
+
+        return response()->json(['Favorito' => $favorito]);
     }
 
-    // EL EDIT sirve para traer los 
-    // datos que se van a editar y colocarlos en un formulario
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //actualiza datos en la bd
+        // Actualizar datos en la base de datos
+        $favorito = Favorito::find($id);
+
+        if (!$favorito) {
+            return response()->json(['mensaje' => 'Favorito no encontrado'], 404);
+        }
+
+        // Validar y actualizar los datos
+        $request->validate([
+            // Agrega las reglas de validación según tus necesidades
+        ]);
+
+        $favorito->update($request->all());
+
+        return response()->json(['mensaje' => 'Favorito actualizado correctamente']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        // encontrar por id
+
+        // Eliminar un registro de favoritos
         $favorito = Favorito::find($id);
-        if(!$favorito){
-            return response()->json(['error' => 'Favorito no encontrado', 404]);
+
+        if (!$favorito) {
+            return response()->json(['mensaje' => 'Favorito no encontrado'], 404);
         }
-        //elimina el favorito
+
         $favorito->delete();
 
-        return response()->json(['message' => 'Producto eliminado'], 200);
-       
+        return response()->json(['mensaje' => 'Favorito eliminado correctamente']);
     }
 
+    public function eliminarFavorito(Request $request)
+    {
+        // Obtener el usuario autenticado
+        $usuario = Auth::user();
+
+        // Buscar y eliminar producto de favoritos
+        $favorito = Favorito::where('user_id', $usuario->id)
+                            ->where('producto_id', $request->producto_id)
+                            ->first();
+
+        if (!$favorito) {
+            return response()->json(['mensaje' => 'Favorito no encontrado'], 404);
+        }
+
+
+        $favorito->delete();
+
+        return response()->json(['mensaje' => 'Producto eliminado de favoritos']);
+    }
 }

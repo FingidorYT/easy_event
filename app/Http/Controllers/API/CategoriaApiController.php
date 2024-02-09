@@ -16,8 +16,9 @@ class CategoriaApiController extends Controller
      */
     public function index()
     {
-        $categorias = Categoria::all();
-        return response()->json(['data' => $categorias], 200);
+        $categoria = Categoria::all();
+        return response()->json(['Categoria' => $categoria]);
+
     }
 
 
@@ -34,8 +35,13 @@ class CategoriaApiController extends Controller
             'descripcion' => 'required',
         ]);
 
-        $categoria = Categoria::create($request->all());
-        return response()->json(['data' => $categoria], 201);
+        $categoria = Categoria::create([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+
+        ]);
+
+        return response()->json(['Categoria' => $categoria], 201);
     }
 
 
@@ -45,9 +51,11 @@ class CategoriaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Categoria $categoria)
+    public function show($id)
     {
-        return response()->json(['data' => $categoria], 200);
+        $categoria = Categoria::find($id);
+        return response()->json($categoria, 200);
+
     }
 
 
@@ -58,15 +66,26 @@ class CategoriaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Categoria $categoria)
+    public function update(Request $request, $id)
     {
-        $request->validate([
+        $this->validate($request, [
             'nombre' => 'required|string',
             'descripcion' => 'required',
+        ]); 
+
+        $categoria = Categoria::find($id);
+
+        if(!$categoria){
+            return response()->json(['error' => 'Categoria no encontrada'], 404);
+        }
+
+        $categoria->update([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
         ]);
 
-        $categoria->update($request->all());
-        return response()->json(['data' => $categoria], 200);
+        return response()->json(['message' => 'Categoria actualizada', 'Categoria'=>$categoria]);
+
     }
 
 
@@ -76,10 +95,19 @@ class CategoriaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Categoria $categoria)
+    public function destroy($id)
     {
+
+        $categoria = Categoria::find($id);
+
+        if(!$categoria){
+            return response()->json(['error' => 'Categoria no encontrada'], 404);
+        }
+        // eliminamos el producto
         $categoria->delete();
-        return response(null, 204);
+
+        return response()->json(['message'=>'Categoria eliminada'], 200);
+
     }
 
 }
