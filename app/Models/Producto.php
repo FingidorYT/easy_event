@@ -9,8 +9,10 @@ class Producto extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'codigo', 'precio', 'nombre', 'cantidad_disponible', 'cantidad_inventario', 'categoria_id', 'empresa_id'
+        'codigo', 'precio', 'nombre_producto', 'cantidad_disponible', 'cantidad_inventario', 'categoria_id', 'empresa_id'
     ];
 
     public function categoria () {

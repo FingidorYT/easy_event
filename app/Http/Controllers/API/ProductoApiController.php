@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\Categoria;
 
 class ProductoApiController extends Controller
 {
@@ -56,7 +57,17 @@ class ProductoApiController extends Controller
 
     public function search(Request $request){
         $busqueda = $request->busqueda;
+        $filtro = $request->categoria;
+        $categoria = Categoria::find($filtro);
 
+        if ($categoria) {
+            $producto = Producto::where('codigo', 'like', "%$busqueda%")
+                            ->orWhere('nombre_producto', 'like',"%$busqueda%")
+                            ->where('categoria_id', $categoria->id)
+                            ->get();
+
+        return response()->json(['Producto' => $producto]);
+        }
         //return response()->json(['Producto' => $busqueda]);
 
         $producto = Producto::where('codigo', 'like', "%$busqueda%")
@@ -75,7 +86,8 @@ class ProductoApiController extends Controller
      */
     public function show($id)
     {
-        //
+        $producto= Producto::find($id);
+        return response()->json($producto,200);
     }
 
     /**

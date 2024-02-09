@@ -15,7 +15,9 @@ class AlquilerApiController extends Controller
      */
     public function index()
     {
-        //
+        // Puedes implementar la lógica para mostrar una lista de todos los alquileres (para el área de administrador).
+        $alquileres = Alquiler::all();
+        return response()->json(['Alquileres' => $alquileres]);
     }
 
     /**
@@ -26,6 +28,7 @@ class AlquilerApiController extends Controller
      */
     public function store(Request $request)
     {
+        // Validar la solicitud y almacenar el nuevo alquiler.
         $validar = $request->validate([
             "user_id" => "required|numeric",
             "metodo_pago" => "required|string",
@@ -33,48 +36,56 @@ class AlquilerApiController extends Controller
             "fecha_alquiler" => "required|date",
             "fecha_devolucion" => "required|date"
         ]);
-        Alquiler::create($request->all());
+
+        // Crear el alquiler.
+        $alquiler = Alquiler::create($request->all());
+
+        // Puedes devolver una respuesta adecuada, por ejemplo, el ID del nuevo alquiler.
+        return response()->json(['mensaje' => 'Alquiler creado exitosamente', 'id' => $alquiler->id], 201);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request)
     {
+        // Mostrar alquileres según el estado y/o usuario (para el área de administrador).
+
         $estado = $request->estado;
         $user_id = $request->user_id;
-        if ($estado === "a" ){
-        $alquiler = Alquiler::where('user_id', $user_id)->where('estado', "activo")->get();
-        if ($alquiler) {
-            return response()->json($alquiler, 200);
-        }else {
-            echo "--".$alquiler."No tiene alquileres Activos";
+
+        // Validar el estado para determinar qué alquileres mostrar.
+        if ($estado === "a") {
+            // Mostrar alquileres activos.
+            $alquileres = Alquiler::where('user_id', $user_id)->where('estado', "activo")->get();
+        } else {
+            // Mostrar todos los alquileres del usuario.
+            $alquileres = Alquiler::where('user_id', $user_id)->get();
         }
-        }else {
-            $alquiler = Alquiler::where('user_id', $user_id)->get();
-            if ($alquiler) {
-                return response()->json($alquiler, 200);
-            }else {
-                echo "No tiene alquileres";
-            }
-        }
+
+        // Devolver la respuesta.
+        return response()->json(['Alquileres' => $alquileres], 200);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
+        // Actualizar un alquiler existente (para el área de administrador).
         $user_id = $request->user_id;
-        $alquiler = Alquiler::where('user_id', $user_id)->where('estado', "pendiente");
-        if ($alquiler->first()) {
+
+        // Buscar alquileres pendientes del usuario.
+        $alquiler = Alquiler::where('user_id', $user_id)->where('estado', "pendiente")->first();
+
+        if ($alquiler) {
+            // Validar la solicitud de actualización.
             $request->validate([
                 "user_id" => "required|numeric",
                 "metodo_pago" => "required|string",
@@ -82,10 +93,15 @@ class AlquilerApiController extends Controller
                 "fecha_alquiler" => "required|date",
                 "fecha_devolucion" => "required|date",
             ]);
+
+            // Actualizar el alquiler.
             $alquiler->update($request->all());
-            return response()->json($alquiler, 200);
-        }else {
-            echo "No tiene alquileres pendientes";
+
+            // Devolver la respuesta actualizada.
+            return response()->json(['mensaje' => 'Alquiler actualizado exitosamente', 'alquiler' => $alquiler], 200);
+        } else {
+            // Indicar que no hay alquileres pendientes para el usuario.
+            return response()->json(['mensaje' => 'No tiene alquileres pendientes'], 404);
         }
     }
 
@@ -97,6 +113,14 @@ class AlquilerApiController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // Puedes implementar la lógica para eliminar un alquiler específico (para el área de administrador).
+        $alquiler = Alquiler::find($id);
+
+        if ($alquiler) {
+            $alquiler->delete();
+            return response()->json(['mensaje' => 'Alquiler eliminado exitosamente'], 200);
+        } else {
+            return response()->json(['mensaje' => 'Alquiler no encontrado'], 404);
+        }
     }
 }
