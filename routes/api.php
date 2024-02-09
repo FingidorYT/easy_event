@@ -34,6 +34,7 @@ Route::group([
     Route::post('signup', [AuthController::class,'signUp']);
     Route::post('signup_empresario', [AuthController::class,'signUpEmpresario']);
   
+
 });
 
 Route::group([
@@ -61,6 +62,7 @@ Route::group([
 
       
   });
+
 
 
 
