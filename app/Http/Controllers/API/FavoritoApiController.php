@@ -40,6 +40,7 @@ class FavoritoApiController extends Controller
         ]);
 
         return response()->json(['mensaje' => 'Producto agregado a favoritos']);
+
     }
 
     public function show($id)
@@ -79,6 +80,7 @@ class FavoritoApiController extends Controller
 
     public function destroy($id)
     {
+
         // Eliminar un registro de favoritos
         $favorito = Favorito::find($id);
 
@@ -104,6 +106,7 @@ class FavoritoApiController extends Controller
         if (!$favorito) {
             return response()->json(['mensaje' => 'Favorito no encontrado'], 404);
         }
+
 
         $favorito->delete();
 
