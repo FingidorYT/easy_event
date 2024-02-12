@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Favorito;
+use App\Models\Producto;
 use Illuminate\Support\Facades\Auth;
 
 class FavoritoApiController extends Controller
@@ -12,6 +13,9 @@ class FavoritoApiController extends Controller
     public function index()
     {
         $favoritos = Favorito::all();
+        foreach ($favoritos as $favorito) {
+            $favorito->producto;
+        }
         return response()->json(['Favoritos' => $favoritos]);
     }
 
@@ -41,10 +45,14 @@ class FavoritoApiController extends Controller
     public function show($id)
     {
         // Obtener y mostrar detalles de un favorito específico
-        $favorito = Favorito::where('user_id', $id)->get();
+        $favoritos = Favorito::where('user_id', $id)->get();
 
-        if (!$favorito) {
+        if (!$favoritos) {
             return response()->json(['mensaje' => 'Favorito no encontrado'], 404);
+        }
+
+        foreach ($favoritos as $favorito) {
+            $favorito->producto;
         }
 
         return response()->json(['Favorito' => $favorito]);
