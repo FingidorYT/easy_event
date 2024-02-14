@@ -105,6 +105,7 @@ class AuthController extends Controller
 
         $user=User::create([
             'rol_id' => "2",
+            'estado' => "pendiente",
             'cedula' => $request->cedula,
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -115,6 +116,7 @@ class AuthController extends Controller
         ]);
  try {
         Empresa::create([
+            'estado' => "pendiente",
             'nit_empresa' => $request->nit_empresa,
             'direccion_empresa' => $request->cedula,
             'nombre_empresa' => $request->nombre,
