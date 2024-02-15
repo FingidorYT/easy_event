@@ -150,4 +150,11 @@ class ProductoApiController extends Controller
 
         return response()->json(['message'=>'Producto eliminado'], 200);
     }
+
+
+    public function getProductosCategoria($id)
+    {
+        $productos= Producto::where("categoria_id",$id)->get();
+        return response()->json(['Producto' => $productos],200);
+    }
 }

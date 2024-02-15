@@ -46,6 +46,7 @@ Route::group([
       Route::apiResource('producto', ProductoApiController::class);
       Route::apiResource('empresa', EmpresaApiController::class);
       Route::apiResource('categoria', CategoriaApiController::class);
+      Route::get('getProductos/{id}',[ProductoApiController::class,'getProductosCategoria']);
       Route::apiResource('favorito', FavoritoApiController::class);
       Route::post('producto/search', [ProductoApiController::class, 'search']);
 

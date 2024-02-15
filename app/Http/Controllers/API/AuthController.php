@@ -88,7 +88,9 @@ class AuthController extends Controller
 
     public function signUpEmpresario(Request $request)
     {
-        $request->validate([
+
+        //return response()->json($request);
+       /* $request->validate([
             'cedula' => 'required|unique:users',
             'nombre' => 'required|string',
             'apellido' => 'required|string',
@@ -101,7 +103,7 @@ class AuthController extends Controller
             'nombre_empresa' => 'required|string',
             'telefono_empresa' => 'required|numeric|unique:empresas',
             'email_empresa' => 'required|string|unique:empresas',
-        ]);
+        ]);*/
 
         $user=User::create([
             'rol_id' => "2",

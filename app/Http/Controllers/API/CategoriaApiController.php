@@ -16,6 +16,7 @@ class CategoriaApiController extends Controller
      */
     public function index()
     {
+        //$categoria = Categoria::with('producto')->get();
         $categoria = Categoria::all();
         return response()->json(['Categoria' => $categoria]);
 
