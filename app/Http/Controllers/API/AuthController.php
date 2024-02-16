@@ -90,20 +90,20 @@ class AuthController extends Controller
     {
 
         //return response()->json($request);
-       /* $request->validate([
+        $request->validate([
             'cedula' => 'required|unique:users',
-            'nombre' => 'required|string',
-            'apellido' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'fecha_nacimiento' => 'required|date',
+            'nombre' => 'required',
+            'apellido' => 'required',
+            'email' => 'required|string|unique:users',
+            'fecha_nacimiento' => 'required',
             'telefono' => 'required',
             'password' => 'required|string',
-            'nit_empresa' => 'required|numeric|unique:empresas',
+            'nit_empresa' => 'required|unique:empresas',
             'direccion_empresa' => 'required|string',
             'nombre_empresa' => 'required|string',
-            'telefono_empresa' => 'required|numeric|unique:empresas',
+            'telefono_empresa' => 'required|unique:empresas',
             'email_empresa' => 'required|string|unique:empresas',
-        ]);*/
+        ]);
 
         $user=User::create([
             'rol_id' => "2",
@@ -126,6 +126,31 @@ class AuthController extends Controller
             'email_empresa' => $request->email,
             'user_id' => $user->id,
         ]);
+        $change=false;
+        if ($request->hasFile('foto'))
+        {
+            $fileName=$request->file('foto')->getClientOriginalName();
+            $extFile=substr($fileName, strripos($fileName, "."));
+            $info_foto=
+            $pathi = $request->file('foto')->storeAs('my_files','user/'.$user->id.'/img'. $user->id."_img.png");
+            //$pathi = $request->file('foto')->storeAs('user/123/img_123_img'.$extFile,'my_files');
+            $user->foto = $pathi;
+            $change=TRUE;
+        } else {
+            return response()->json([
+                'message---' => 'No File'
+            ], 405);
+        }
+        /*if (!$request->hasFile('img_miniatura'))
+        {
+            $proceso->img_miniatura = "proceso/comun/img/no.png";
+            $change=TRUE;
+
+        }*/
+        if ($change==TRUE) {
+            $user->save();
+
+        }
     } catch (Throwable $e) {
         $user->delete();
         return response()->json([
