@@ -44,11 +44,15 @@ Route::group([
       Route::delete('user/{id}', [AuthController::class, 'delete']);
       Route::apiResource('sancion', SancionApiController::class);
       Route::apiResource('producto', ProductoApiController::class);
+      Route::get('getProductos/{id}',[ProductoApiController::class,'getProductosCategoria']);
+      Route::post('producto/search', [ProductoApiController::class, 'search']);
       Route::apiResource('empresa', EmpresaApiController::class);
       Route::apiResource('categoria', CategoriaApiController::class);
-      Route::get('getProductos/{id}',[ProductoApiController::class,'getProductosCategoria']);
       Route::apiResource('favorito', FavoritoApiController::class);
-      Route::post('producto/search', [ProductoApiController::class, 'search']);
+      Route::apiResource('alquiler', AlquilerApiController::class);
+      Route::post('alquiler/contar/{id}', [AlquilerApiController::class, 'contarAlquileres']);
+      
+
 
       /*Route::delete('categoria/{id}', [CategoriaApiController::class, 'destroy']);
       Route::post('alquiler', [AlquilerApiController::class, 'show']);

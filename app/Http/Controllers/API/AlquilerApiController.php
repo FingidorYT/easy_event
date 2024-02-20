@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Alquiler;
+use Illuminate\Support\Facades\Auth;
 
 class AlquilerApiController extends Controller
 {
@@ -50,13 +51,43 @@ class AlquilerApiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show(Request $request, $id)
     {
+        
+    }
+
+    public function contarAlquileres (Request $request)
+    {
+
         // Mostrar alquileres según el estado y/o usuario (para el área de administrador).
-
         $estado = $request->estado;
-        $user_id = $request->user_id;
+        $user = Auth::user();
+        $rol_id = $user->rol_id;
+        
 
+        if($rol_id==2){
+                // Validar el estado para determinar qué alquileres mostrar.
+            if ($estado === "a") {
+                // Mostrar alquileres activos.
+                $alquileres = AlquilerHasProducto::join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                ->where('productos.empresa_id', 1)
+                ->get();
+                /*
+                select count(*) from alquilers as al
+INNER JOIN alquiler_has_productos as ap on al.id=ap.alquiler_id
+INNER JOIN productos as pr on ap.producto_id=pr.id
+inner JOIN empresas as em on pr.empresa_id=em.id
+WHERE pr.empresa_id=1;*/
+                
+                    return response()->json(['Alquileres' => $alquileres], 200);
+
+                //$alquileres = Alquiler::where('user_id', $user_id)->where('estado', "activo")->get();
+            } else {
+                // Mostrar todos los alquileres del usuario.
+                //$alquileres = Alquiler::where('user_id', $user_id)->get();
+        }
+
+        }/*
         // Validar el estado para determinar qué alquileres mostrar.
         if ($estado === "a") {
             // Mostrar alquileres activos.
@@ -64,10 +95,14 @@ class AlquilerApiController extends Controller
         } else {
             // Mostrar todos los alquileres del usuario.
             $alquileres = Alquiler::where('user_id', $user_id)->get();
-        }
+        }*/
 
         // Devolver la respuesta.
-        return response()->json(['Alquileres' => $alquileres], 200);
+        return response()->json(['Alquileres' => $user], 200);
+
+
+
+
     }
 
     /**
