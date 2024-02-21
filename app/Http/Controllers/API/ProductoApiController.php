@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use App\Models\Categoria;
+use Illuminate\Support\Facades\Auth;
 
 class ProductoApiController extends Controller
 {
@@ -17,8 +18,20 @@ class ProductoApiController extends Controller
     public function index()
     {
         //
-        $producto = Producto::all();
-        return response()->json(['Producto' => $producto]);
+        $user = Auth::user();
+        if($user->rol_id == 2){
+            $empresa = $user->empresa;
+            $productos = Producto::where('empresa_id', $empresa->id)->get();
+            return response()->json(['Producto' => $productos]);
+        
+        }else if($user->rol_id == 3){
+            $producto = Producto::all();
+            return response()->json(['Producto' => $producto]);
+        }else {
+
+            
+        }
+        
     }
 
     /**
