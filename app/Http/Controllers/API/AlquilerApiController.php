@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Alquiler;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class AlquilerApiController extends Controller
 {
@@ -16,9 +18,28 @@ class AlquilerApiController extends Controller
      */
     public function index()
     {
-        // Puedes implementar la lógica para mostrar una lista de todos los alquileres (para el área de administrador).
-        $alquileres = Alquiler::all();
-        return response()->json(['Alquileres' => $alquileres]);
+        $user = Auth::user();
+        $rol_id = $user->rol_id;
+        if($rol_id == 1){
+            $alquileres = Alquiler::all();
+            return response()->json(['Alquileres' => $alquileres]);
+        }elseif($rol_id == 2){
+            //$empresa= Empresa::find($user->empresa_id);
+            $alquileres = DB::table('alquilers as al')
+            ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+            ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+            ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+            ->join('users as us', 'al.user_id', '=', 'us.id')
+            ->select('al.*', 'us.nombre', 'us.apellido')
+            ->distinct()
+            ->where('pr.empresa_id', 1)
+            ->get();
+            
+
+            return response()->json(['Alquileres'=>$alquileres]);
+           
+        }
+        
     }
 
     /**
