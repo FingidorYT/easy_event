@@ -21,7 +21,11 @@ class CreateAlquilersTable extends Migration
             $table->string('lugar_entrega');
             $table->date('fecha_alquiler');
             $table->date('fecha_devolucion');
-            $table->string('estado');
+            $table->string('estado_pedido')->nullable();
+            $table->string('estado_secuencia');
+            $table->bigInteger('precio_envio')->nullable();
+            $table->bigInteger('costos_adicionales')->nullable();
+            $table->bigInteger('precio_alquiler');
             // $table->timestamps();
         });
     }

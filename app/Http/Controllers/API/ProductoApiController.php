@@ -43,29 +43,27 @@ class ProductoApiController extends Controller
     public function store(Request $request)
     {
         //validacion de datos
-        $this->validate($request, [
-            'codigo' => 'required',
+        /*$this->validate($request, [
             'precio' => 'required',
             'nombre_producto' => 'required',
             'cantidad_disponible' => 'required',
-            'cantidad_inventario' => 'required',
-            'categoria_id' => 'required',
-            'empresa_id' => 'required',
+        ]);*/
 
-        ]);
-
+        $user = Auth::user();
+        $empresa= $user->empresa;
+        
         // Crear un nuevo producto
         $producto = Producto::create([
-            'codigo' => $request->codigo,
+            'codigo' => "1",
             'precio' => $request->precio,
             'nombre_producto' => $request->nombre_producto,
             'cantidad_disponible' => $request->cantidad_disponible,
-            'cantidad_inventario' => $request->cantidad_inventario,
-            'categoria_id' => $request->categoria_id,
-            'empresa_id' => $request->empresa_id,
+            'cantidad_inventario' => $request->cantidad_disponible,
+            'categoria_id' => "1",
+            'empresa_id' => $empresa->id,
         ]);
 
-        return response()->json(['Producto' => $producto], 201);
+        return response()->json([ 'message' => 'Successfully created user!'], 201);
     }
 
     public function search(Request $request){

@@ -16,3 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('storage/{folder}/{filename}', function ($folder,$filename)
+{
+    //return response()->json($filename);
+    return Image::make(storage_path('app/public/' .$folder.'/'. $filename))->response();
+});
