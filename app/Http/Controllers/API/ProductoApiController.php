@@ -63,6 +63,30 @@ class ProductoApiController extends Controller
             'empresa_id' => $empresa->id,
         ]);
 
+        $change=false;
+        if ($request->hasFile('foto'))
+        {
+            $user = Auth::user();
+            $fileName=$request->file('foto')->getClientOriginalName();
+            $extFile=substr($fileName, strripos($fileName, "."));
+            $info_foto=
+            $pathi = $request->file('foto')->storeAs('public','my_files/productos/'.$user->id.'/img_'. $producto->id.".png");
+            //$pathi = $request->file('foto')->storeAs('user/123/img_123_img'.$extFile,'my_files');
+            
+            $producto->foto = substr($pathi, stripos($pathi, "/")+1);
+            $change=TRUE;
+
+        } else
+        {
+            $producto->foto = "my_files/productos/no.png";
+            $change=TRUE;
+
+        }
+        if ($change==TRUE) {
+            $producto->save();
+
+        }
+
         return response()->json([ 'message' => 'Successfully created user!'], 201);
     }
 

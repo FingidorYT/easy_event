@@ -24,7 +24,7 @@ class CreateProductosTable extends Migration
             $table->foreign('empresa_id')->references('id')->on('empresas');
             $table->foreignId('categoria_id'); 
             $table->foreign('categoria_id')->references('id')->on('categorias');
-            $table->string('foto')->nullable();
+            $table->string('foto')->nullable()->default('my_files/productos/no.png');
             //$table->timestamps();
         });
     }
