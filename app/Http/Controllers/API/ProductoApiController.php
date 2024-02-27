@@ -57,9 +57,10 @@ class ProductoApiController extends Controller
             'codigo' => "1",
             'precio' => $request->precio,
             'nombre_producto' => $request->nombre_producto,
+            'descripcion' => $request->descripcion,
             'cantidad_disponible' => $request->cantidad_disponible,
             'cantidad_inventario' => $request->cantidad_disponible,
-            'categoria_id' => "1",
+            'categoria_id' => $request->categoria,
             'empresa_id' => $empresa->id,
         ]);
 
