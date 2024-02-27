@@ -79,50 +79,29 @@ class AlquilerApiController extends Controller
 
     public function contarAlquileres (Request $request)
     {
-
         // Mostrar alquileres según el estado y/o usuario (para el área de administrador).
-        $estado = $request->estado;
         $user = Auth::user();
         $rol_id = $user->rol_id;
-        
-
+        $estado = $request->estado;
         if($rol_id==2){
-                // Validar el estado para determinar qué alquileres mostrar.
-            if ($estado === "a") {
-                // Mostrar alquileres activos.
-                $alquileres = AlquilerHasProducto::join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
-                ->where('productos.empresa_id', 1)
-                ->get();
-                /*
-                select count(*) from alquilers as al
-INNER JOIN alquiler_has_productos as ap on al.id=ap.alquiler_id
-INNER JOIN productos as pr on ap.producto_id=pr.id
-inner JOIN empresas as em on pr.empresa_id=em.id
-WHERE pr.empresa_id=1;*/
+                $empresa = $user->empresa; 
+                $alquileres = DB::table('alquilers as al')
+                ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                ->join('users as us', 'al.user_id', '=', 'us.id')
+                ->select('al.*', 'us.nombre', 'us.apellido')
+                ->distinct()
+                ->where('pr.empresa_id', $empresa->id)
+                ->where('al.estado_pedido', $estado)
+                ->count();
                 
-                    return response()->json(['Alquileres' => $alquileres], 200);
+                    return response()->json(['Alquileres' => $alquileres], 200);            
+        }else{
 
-                //$alquileres = Alquiler::where('user_id', $user_id)->where('estado', "activo")->get();
-            } else {
-                // Mostrar todos los alquileres del usuario.
-                //$alquileres = Alquiler::where('user_id', $user_id)->get();
+            return response()->json(['Alquileres' => 'No autorizado'], 200);
+
         }
-
-        }/*
-        // Validar el estado para determinar qué alquileres mostrar.
-        if ($estado === "a") {
-            // Mostrar alquileres activos.
-            $alquileres = Alquiler::where('user_id', $user_id)->where('estado', "activo")->get();
-        } else {
-            // Mostrar todos los alquileres del usuario.
-            $alquileres = Alquiler::where('user_id', $user_id)->get();
-        }*/
-
-        // Devolver la respuesta.
-        return response()->json(['Alquileres' => $user], 200);
-
-
-
 
     }
 
