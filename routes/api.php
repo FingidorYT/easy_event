@@ -42,6 +42,7 @@ Route::group([
   ], function() {
       Route::get('users', [AuthController::class, 'users']);
       Route::delete('user/{id}', [AuthController::class, 'delete']);
+      Route::put('user/edit', [AuthController::class, 'update']);
       Route::apiResource('sancion', SancionApiController::class);
       Route::apiResource('producto', ProductoApiController::class);
       Route::get('getProductos/{id}',[ProductoApiController::class,'getProductosCategoria']);

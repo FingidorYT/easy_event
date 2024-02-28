@@ -229,4 +229,22 @@ class AuthController extends Controller
         $user->rol;
         return response()->json($user);
     }
+    
+    public function update (Request $request) {
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        $user->update([
+            'nombre' => $request->nombre,
+            'apellido' => $request->apellido,
+            'email' => $request->email,
+            'telefono' => $request->telefono,
+        ]);
+        return response()->json(['message' => 'Usuario actualizado', 'Usuario'=>$user]);
+    }
+
 }
