@@ -50,7 +50,8 @@ Route::group([
       Route::apiResource('categoria', CategoriaApiController::class);
       Route::apiResource('favorito', FavoritoApiController::class);
       Route::apiResource('alquiler', AlquilerApiController::class);
-      Route::post('alquiler/contar/{id}', [AlquilerApiController::class, 'contarAlquileres']);
+      Route::post('alquiler/contar', [AlquilerApiController::class, 'contarAlquileres']);
+      Route::post('alquiler/filtrar', [AlquilerApiController::class, 'filtrarAlquileres']);
       Route::get('logout', [AuthController::class, 'logout']);
       
 
