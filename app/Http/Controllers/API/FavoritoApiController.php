@@ -112,4 +112,14 @@ class FavoritoApiController extends Controller
 
         return response()->json(['mensaje' => 'Producto eliminado de favoritos']);
     }
+
+    public function listarfavoritos()
+    {
+        $user = Auth::user();
+        $favoritos = Favorito::where('user_id', $user->id)->get();
+        foreach ($favoritos as $favorito) {
+                $favorito->producto;
+        }
+        return response()->json(['Favorito' => $favoritos]);
+    }
 }

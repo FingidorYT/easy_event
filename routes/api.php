@@ -50,6 +50,7 @@ Route::group([
       Route::apiResource('empresa', EmpresaApiController::class);
       Route::apiResource('categoria', CategoriaApiController::class);
       Route::apiResource('favorito', FavoritoApiController::class);
+      Route::get('favoritos/user', [FavoritoApiController::class, 'listarfavoritos']);
       Route::apiResource('alquiler', AlquilerApiController::class);
       Route::post('alquiler/contar', [AlquilerApiController::class, 'contarAlquileres']);
       Route::post('alquiler/filtrar', [AlquilerApiController::class, 'filtrarAlquileres']);

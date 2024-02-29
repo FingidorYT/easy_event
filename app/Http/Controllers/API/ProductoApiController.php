@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\Favorito;
 use App\Models\Categoria;
 use Illuminate\Support\Facades\Auth;
 
@@ -122,7 +123,14 @@ class ProductoApiController extends Controller
      */
     public function show($id)
     {
-        $producto= Producto::find($id);
+        $user = Auth::user();
+        $producto = Producto::find($id);
+        $favorit = Favorito::where('producto_id', $producto->id)->where('user_id', $user->id)->get();
+        if(!$favorit) {
+            $producto->favorito = false;
+        } else{
+            $producto->favorito = true;
+        }
         return response()->json($producto,200);
     }
 
@@ -135,35 +143,53 @@ class ProductoApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //validamos datos
-        $this->validate($request, [
-            'codigo' => 'required',
-            'precio' => 'required',
-            'nombre_producto' => 'required',
-            'cantidad_disponible' => 'required',
-            'cantidad_inventario' => 'required',
-            'categoria_id' => 'required',
-            'empresa_id' => 'required',
-        ]);
+        
         // buscar el producto por id o no se si por codigo
+        $user = Auth::user();
+        $empresa= $user->empresa;
         $producto = Producto::find($id);
-
         // un if x si no se encuentra
         if(!$producto){
             return response()->json(['error' => 'Producto no encontrado'], 404);
         }
 
         //nuevos datos
-        $producto->update([
-        'codigo' => $request->codigo,
-        'precio' => $request->precio,
-        'nombre_producto' => $request->nombre_producto,
-        'cantidad_disponible' => $request->cantidad_disponible,
-        'cantidad_inventario' => $request->cantidad_inventario,
-        'categoria_id' => $request->categoria_id,
-        'empresa_id' => $request->empresa_id,
+         $producto->update([
+            'codigo' => "1",
+            'precio' => $request->precio,
+            'nombre_producto' => $request->nombre_producto,
+            'descripcion' => $request->descripcion,
+            'cantidad_disponible' => $request->cantidad_disponible,
+            'cantidad_inventario' => $request->cantidad_disponible,
+            'categoria_id' => $request->categoria,
+            'empresa_id' => $empresa->id,
         ]);
-        return response()->json(['message' => 'Producto actualizado', 'Producto'=>$producto]);
+
+        $change=false;
+        if ($request->hasFile('foto'))
+        {
+            $user = Auth::user();
+            $fileName=$request->file('foto')->getClientOriginalName();
+            $extFile=substr($fileName, strripos($fileName, "."));
+            $info_foto=
+            $pathi = $request->file('foto')->storeAs('public','my_files/productos/'.$user->id.'/img_'. $producto->id.".png");
+            //$pathi = $request->file('foto')->storeAs('user/123/img_123_img'.$extFile,'my_files');
+            
+            $producto->foto = substr($pathi, stripos($pathi, "/")+1);
+            $change=TRUE;
+
+        } else
+        {
+            $producto->foto = "my_files/productos/no.png";
+            $change=TRUE;
+
+        }
+        if ($change==TRUE) {
+            $producto->save();
+
+        }
+
+        return response()->json([ 'message' => 'Successfully createdr!'], 201);
 
     }
 
