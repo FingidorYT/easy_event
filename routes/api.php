@@ -47,12 +47,13 @@ Route::group([
       Route::apiResource('producto', ProductoApiController::class);
       Route::get('getProductos/{id}',[ProductoApiController::class,'getProductosCategoria']);
       Route::post('producto/search', [ProductoApiController::class, 'search']);
+      Route::post('producto/actualizar/{id}', [ProductoApiController::class, 'actualizar']);
       Route::apiResource('empresa', EmpresaApiController::class);
       Route::apiResource('categoria', CategoriaApiController::class);
       Route::apiResource('favorito', FavoritoApiController::class);
       Route::get('favoritos/user', [FavoritoApiController::class, 'listarfavoritos']);
       Route::apiResource('alquiler', AlquilerApiController::class);
-      Route::post('alquiler/contar', [AlquilerApiController::class, 'contarAlquileres']);
+      Route::get('alquiler/contar', [AlquilerApiController::class, 'contarAlquileres']);
       Route::post('alquiler/filtrar', [AlquilerApiController::class, 'filtrarAlquileres']);
       Route::get('logout', [AuthController::class, 'logout']);
       

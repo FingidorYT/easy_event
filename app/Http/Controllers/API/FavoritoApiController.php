@@ -81,8 +81,12 @@ class FavoritoApiController extends Controller
     public function destroy($id)
     {
 
-        // Eliminar un registro de favoritos
-        $favorito = Favorito::find($id);
+        $usuario = Auth::user();
+
+        // Buscar y eliminar producto de favoritos
+        $favorito = Favorito::where('user_id', $usuario->id)
+                            ->where('producto_id', $id)
+                            ->first();
 
         if (!$favorito) {
             return response()->json(['mensaje' => 'Favorito no encontrado'], 404);
@@ -90,7 +94,7 @@ class FavoritoApiController extends Controller
 
         $favorito->delete();
 
-        return response()->json(['mensaje' => 'Favorito eliminado correctamente']);
+        return response()->json(['mensaje' => 'Producto eliminado de favoritos']);
     }
 
     public function eliminarFavorito(Request $request)

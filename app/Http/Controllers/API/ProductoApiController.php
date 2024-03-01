@@ -52,7 +52,7 @@ class ProductoApiController extends Controller
 
         $user = Auth::user();
         $empresa= $user->empresa;
-        
+        //return response()->json(['post' => $request], 404);
         // Crear un nuevo producto
         $producto = Producto::create([
             'codigo' => "1",
@@ -125,7 +125,7 @@ class ProductoApiController extends Controller
     {
         $user = Auth::user();
         $producto = Producto::find($id);
-        $favorit = Favorito::where('producto_id', $producto->id)->where('user_id', $user->id)->get();
+        $favorit = Favorito::where('producto_id', $producto->id)->where('user_id', $user->id)->first();
         if(!$favorit) {
             $producto->favorito = false;
         } else{
@@ -148,12 +148,14 @@ class ProductoApiController extends Controller
         $user = Auth::user();
         $empresa= $user->empresa;
         $producto = Producto::find($id);
+        return response()->json(['error' => $producto], 404);
         // un if x si no se encuentra
-        if(!$producto){
-            return response()->json(['error' => 'Producto no encontrado'], 404);
-        }
+        /*if($producto){
+            return response()->json(['error' => $request], 404);
+        }*/
 
         //nuevos datos
+        /*
          $producto->update([
             'codigo' => "1",
             'precio' => $request->precio,
@@ -163,7 +165,18 @@ class ProductoApiController extends Controller
             'cantidad_inventario' => $request->cantidad_disponible,
             'categoria_id' => $request->categoria,
             'empresa_id' => $empresa->id,
-        ]);
+        ]);*/
+
+        $producto->codigo = "1";
+        $producto->precio = $request->precio;
+        $producto->nombre_producto = $request->nombre_producto;
+        $producto->descripcion = $request->descripcion;
+        $producto->cantidad_disponible = $request->cantidad_disponible;
+        $producto->cantidad_inventario = $request->cantidad_disponible;
+        $producto->categoria_id = $request->categoria;
+        $producto->empresa_id = $empresa->id;
+        return response()->json(['error' => $producto], 404);
+
 
         $change=false;
         if ($request->hasFile('foto'))
@@ -185,7 +198,74 @@ class ProductoApiController extends Controller
 
         }
         if ($change==TRUE) {
-            $producto->save();
+            $producto->update();
+
+        }
+
+        return response()->json([ 'message' => 'Successfully createdr!'], 201);
+
+    }
+
+    public function actualizar(Request $request, $id)
+    {
+        
+        // buscar el producto por id o no se si por codigo
+        $user = Auth::user();
+        $empresa= $user->empresa;
+        $producto = Producto::find($id);
+
+        // un if x si no se encuentra
+        /*if($producto){
+            return response()->json(['error' => $request], 404);
+        }*/
+
+        //nuevos datos
+        /*
+         $producto->update([
+            'codigo' => "1",
+            'precio' => $request->precio,
+            'nombre_producto' => $request->nombre_producto,
+            'descripcion' => $request->descripcion,
+            'cantidad_disponible' => $request->cantidad_disponible,
+            'cantidad_inventario' => $request->cantidad_disponible,
+            'categoria_id' => $request->categoria,
+            'empresa_id' => $empresa->id,
+        ]);*/
+
+        $producto->codigo = "1";
+        $producto->precio = $request->precio;
+        $producto->nombre_producto = $request->nombre_producto;
+        $producto->descripcion = $request->descripcion;
+        $producto->cantidad_disponible = $request->cantidad_disponible;
+        $producto->cantidad_inventario = $request->cantidad_disponible;
+        $producto->categoria_id = $request->categoria;
+        $producto->empresa_id = $empresa->id;
+        $change=false;
+        if ($request->hasFile('foto'))
+        {
+            if ($producto->foto) {
+                $ruta = "storage/$producto->foto";
+                unlink($ruta);
+
+            }
+            $user = Auth::user();
+            $fileName=$request->file('foto')->getClientOriginalName();
+            $extFile=substr($fileName, strripos($fileName, "."));
+            $info_foto=
+            $pathi = $request->file('foto')->storeAs('public','my_files/productos/'.$user->id.'/img_'. $producto->id.".png");
+            //$pathi = $request->file('foto')->storeAs('user/123/img_123_img'.$extFile,'my_files');
+            
+            $producto->foto = substr($pathi, stripos($pathi, "/")+1);
+            $change=TRUE;
+
+        } else
+        {
+            $producto->foto = "my_files/productos/no.png";
+            $change=TRUE;
+
+        }
+        if ($change==TRUE) {
+            $producto->update();
 
         }
 
@@ -203,6 +283,12 @@ class ProductoApiController extends Controller
     {
         //encontrar por id
         $producto = Producto::find($id);
+        $favorito = Favorito::where('producto_id', $producto->id)->delete();
+        if ($producto->foto) {
+            $ruta = "storage/$producto->foto";
+            unlink($ruta);
+
+        }
 
         if(!$producto){
             return response()->json(['error' => 'Producto no encontrado'], 404);

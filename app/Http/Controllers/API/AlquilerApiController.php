@@ -77,15 +77,14 @@ class AlquilerApiController extends Controller
         
     }
 
-    public function contarAlquileres (Request $request)
+    public function contarAlquileres ()
     {
         // Mostrar alquileres según el estado y/o usuario (para el área de administrador).
         $user = Auth::user();
         $rol_id = $user->rol_id;
-        $estado = $request->estado;
         if($rol_id==2){
                 $empresa = $user->empresa; 
-                $alquileres = DB::table('alquilers as al')
+                $alquileres_solicitados = DB::table('alquilers as al')
                 ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
                 ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
                 ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
@@ -93,10 +92,21 @@ class AlquilerApiController extends Controller
                 ->select('al.*', 'us.nombre', 'us.apellido')
                 ->distinct()
                 ->where('pr.empresa_id', $empresa->id)
-                ->where('al.estado_pedido', $estado)
+                ->where('al.estado_pedido', "solicitado")
+                ->count();
+
+                $alquileres_entregados = DB::table('alquilers as al')
+                ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                ->join('users as us', 'al.user_id', '=', 'us.id')
+                ->select('al.*', 'us.nombre', 'us.apellido')
+                ->distinct()
+                ->where('pr.empresa_id', $empresa->id)
+                ->where('al.estado_pedido', "entregado")
                 ->count();
                 
-                    return response()->json(['Alquileres' => $alquileres], 200);            
+                return response()->json([$alquileres_entregados, $alquileres_solicitados], 200);            
         }else{
 
             return response()->json(['Alquileres' => 'No autorizado'], 200);
