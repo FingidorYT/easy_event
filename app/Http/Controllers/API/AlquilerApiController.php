@@ -74,7 +74,8 @@ class AlquilerApiController extends Controller
      */
     public function show(Request $request, $id)
     {
-        
+        return response()->json(['Alquileres' => 'No autorizado'], 200);
+
     }
 
     public function contarAlquileres ()
@@ -106,7 +107,7 @@ class AlquilerApiController extends Controller
                 ->where('al.estado_pedido', "entregado")
                 ->count();
                 
-                return response()->json([$alquileres_entregados, $alquileres_solicitados], 200);            
+                return response()->json(['alquileres_entregados' => $alquileres_entregados,  'alquileres_solicitados'=> $alquileres_solicitados], 200);            
         }else{
 
             return response()->json(['Alquileres' => 'No autorizado'], 200);

@@ -53,7 +53,7 @@ Route::group([
       Route::apiResource('favorito', FavoritoApiController::class);
       Route::get('favoritos/user', [FavoritoApiController::class, 'listarfavoritos']);
       Route::apiResource('alquiler', AlquilerApiController::class);
-      Route::get('alquiler/contar', [AlquilerApiController::class, 'contarAlquileres']);
+      Route::get('alquileres/contar', [AlquilerApiController::class, 'contarAlquileres']);
       Route::post('alquiler/filtrar', [AlquilerApiController::class, 'filtrarAlquileres']);
       Route::get('logout', [AuthController::class, 'logout']);
       
