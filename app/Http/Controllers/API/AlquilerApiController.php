@@ -38,8 +38,13 @@ class AlquilerApiController extends Controller
 
             return response()->json(['Alquileres'=>$alquileres]);
            
+        }elseif ($rol_id ==3 ) {
+
+            $alquileres = Alquiler::where('user_id', $user->id)->get();
+            return response()->json(['Alquileres' => $alquileres]);
+
         }
-        
+        return response()->json(['mensaje' => 'No autorizado'], 200);
     }
 
     /**
@@ -50,20 +55,25 @@ class AlquilerApiController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar la solicitud y almacenar el nuevo alquiler.
-        $validar = $request->validate([
-            "user_id" => "required|numeric",
-            "metodo_pago" => "required|string",
-            "lugar_entrega" => "required|string",
-            "fecha_alquiler" => "required|date",
-            "fecha_devolucion" => "required|date"
-        ]);
+        $user = Auth::user();
+        $rol_id = $user->rol_id;
+        if($rol_id == 3){
+             // Crear el alquiler.
+            $alquileres = Alquiler::where('user_id', $user->id)->count();
 
-        // Crear el alquiler.
-        $alquiler = Alquiler::create($request->all());
+            if ($alquileres >= 3){
+                return response()->json(['mensaje' => 'Tienes muchos alquileres pendientes, espera que te responda el empresario o cancela el pedido'], 200);
+            }
 
-        // Puedes devolver una respuesta adecuada, por ejemplo, el ID del nuevo alquiler.
-        return response()->json(['mensaje' => 'Alquiler creado exitosamente', 'id' => $alquiler->id], 201);
+           Alquiler::create([
+            'user_id' => $user->id,
+           ]);
+
+            // Puedes devolver una respuesta adecuada, por ejemplo, el ID del nuevo alquiler.
+            return response()->json(['mensaje' => 'Alquiler creado exitosamente'], 201);
+        }
+
+        return response()->json(['mensaje' => 'No autorizado'], 200);
     }
 
     /**

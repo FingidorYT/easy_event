@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use App\Models\Favorito;
+use App\Models\Empresa;
 use App\Models\Categoria;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,12 +26,9 @@ class ProductoApiController extends Controller
             $productos = Producto::where('empresa_id', $empresa->id)->get();
             return response()->json(['Producto' => $productos]);
         
-        }else if($user->rol_id == 3){
+        }else {
             $producto = Producto::all();
             return response()->json(['Producto' => $producto]);
-        }else {
-
-            
         }
         
     }
@@ -126,6 +124,8 @@ class ProductoApiController extends Controller
         $user = Auth::user();
         $producto = Producto::find($id);
         $favorit = Favorito::where('producto_id', $producto->id)->where('user_id', $user->id)->first();
+        $empresa = Empresa::find($producto->empresa_id);
+        $producto->nombre_empresa = $empresa->nombre_empresa;
         if(!$favorit) {
             $producto->favorito = false;
         } else{
@@ -243,11 +243,13 @@ class ProductoApiController extends Controller
         $change=false;
         if ($request->hasFile('foto'))
         {
-            if ($producto->foto) {
-                $ruta = "storage/$producto->foto";
-                unlink($ruta);
+            if ($producto->foto == 'my_files/productos/no.png') {
 
+            }else {
+                    $ruta = "storage/$producto->foto";
+                    unlink($ruta);
             }
+            
             $user = Auth::user();
             $fileName=$request->file('foto')->getClientOriginalName();
             $extFile=substr($fileName, strripos($fileName, "."));

@@ -32,13 +32,11 @@ class CategoriaApiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string',
-            'descripcion' => 'required',
+            'nombre' => 'required|string'
         ]);
 
         $categoria = Categoria::create([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
+            'nombre' => $request->nombre
 
         ]);
 
@@ -70,8 +68,7 @@ class CategoriaApiController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'nombre' => 'required|string',
-            'descripcion' => 'required',
+            'nombre' => 'required|string'
         ]); 
 
         $categoria = Categoria::find($id);
@@ -81,8 +78,7 @@ class CategoriaApiController extends Controller
         }
 
         $categoria->update([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
+            'nombre' => $request->nombre
         ]);
 
         return response()->json(['message' => 'Categoria actualizada', 'Categoria'=>$categoria]);
