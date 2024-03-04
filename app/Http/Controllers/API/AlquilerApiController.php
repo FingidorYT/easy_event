@@ -83,6 +83,7 @@ class AlquilerApiController extends Controller
         // Mostrar alquileres según el estado y/o usuario (para el área de administrador).
         $user = Auth::user();
         $rol_id = $user->rol_id;
+        //return response()->json($rol_id);
         if($rol_id==2){
                 $empresa = $user->empresa; 
                 $alquileres_solicitados = DB::table('alquilers as al')
@@ -93,7 +94,7 @@ class AlquilerApiController extends Controller
                 ->select('al.*', 'us.nombre', 'us.apellido')
                 ->distinct()
                 ->where('pr.empresa_id', $empresa->id)
-                ->where('al.estado_pedido', "solicitado")
+                ->where('al.estado_pedido', "solicitud")
                 ->count();
 
                 $alquileres_entregados = DB::table('alquilers as al')
