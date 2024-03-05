@@ -38,7 +38,7 @@ class AlquilerApiController extends Controller
 
             return response()->json(['Alquileres'=>$alquileres]);
            
-        }elseif ($rol_id ==3 ) {
+        }elseif ($rol_id == 3 ) {
 
             $alquileres = Alquiler::where('user_id', $user->id)->get();
             return response()->json(['Alquileres' => $alquileres]);
@@ -105,6 +105,7 @@ class AlquilerApiController extends Controller
                 ->distinct()
                 ->where('pr.empresa_id', $empresa->id)
                 ->where('al.estado_pedido', "solicitud")
+                ->get()
                 ->count();
 
                 $alquileres_entregados = DB::table('alquilers as al')
@@ -146,7 +147,48 @@ class AlquilerApiController extends Controller
                 ->where('al.estado_pedido', $estado)
                 ->get();
                 
-                return response()->json(['Alquileres' => $alquileres], 200);            
+                foreach ($alquileres as $alquiler) {
+                    $precio_total = DB::table('alquiler_has_productos')
+                        ->where('alquiler_id', $alquiler->id)
+                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                        ->sum(DB::raw('productos.precio * alquiler_has_productos.cantidad_recibida'));
+                        $alquiler->precio_total = $precio_total;
+
+                }
+
+                foreach($alquileres as $alquiler){
+                    $productos = DB::table('alquilers as al')
+                ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                ->join('users as us', 'al.user_id', '=', 'us.id')
+                ->select('pr.*','ap.*')
+                ->distinct()
+                ->where('al.id', $alquiler->id)
+                ->where('pr.empresa_id', $empresa->id)
+                ->where('al.estado_pedido', $estado)
+                ->get();
+
+                $alquiler->productos = $productos;
+
+                }
+                
+                return response()->json(['Alquileres' => $alquileres], 200); 
+
+        }else if ($rol_id ==3 ){
+            $alquileres = DB::table('alquilers as al')
+                ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                ->join('users as us', 'al.user_id', '=', 'us.id')
+                ->select('pr.*')
+                ->distinct()
+                ->where('al.user_id', $user->id)
+                ->where('al.estado_pedido', $estado)
+                ->get();
+                return response()->json(['Productos' => $alquileres], 200);
+
+
         }else{
 
             return response()->json(['Alquileres' => 'No autorizado'], 200);
