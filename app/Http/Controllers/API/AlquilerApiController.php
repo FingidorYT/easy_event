@@ -40,7 +40,7 @@ class AlquilerApiController extends Controller
            
         }elseif ($rol_id == 3 ) {
 
-            $alquileres = Alquiler::where('user_id', $user->id)->get();
+            $alquileres = Alquiler::where('user_id', $user->id)->where('estado_pedido', 'activo')->orWhere('estado_pedido', 'finalizado')->get();
             return response()->json(['Alquileres' => $alquileres]);
 
         }
@@ -141,7 +141,7 @@ class AlquilerApiController extends Controller
                 ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
                 ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
                 ->join('users as us', 'al.user_id', '=', 'us.id')
-                ->select('al.*', 'us.nombre', 'us.apellido')
+                ->select('al.*', 'us.nombre', 'us.apellido', 'us.telefono', 'us.foto')
                 ->distinct()
                 ->where('pr.empresa_id', $empresa->id)
                 ->where('al.estado_pedido', $estado)
@@ -186,7 +186,7 @@ class AlquilerApiController extends Controller
                 ->where('al.user_id', $user->id)
                 ->where('al.estado_pedido', $estado)
                 ->get();
-                return response()->json(['Productos' => $alquileres], 200);
+                return response()->json(['Producto' => $alquileres], 200);
 
 
         }else{
