@@ -11,6 +11,7 @@ use Laravel\Passport\HasApiTokens;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
+    
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'rol_id', 'cedula', 'nombre', 'apellido', 'email', 'fecha_nacimiento', 'telefono', 'password',
+        'rol_id', 'cedula', 'nombre', 'apellido', 'email', 'fecha_nacimiento', 'telefono', 'estado', 'foto', 'password',
     ];
 
     /**
@@ -39,12 +40,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-
+    public function sanciones() {
+        return $this->hasMany(sanciones::class, 'user_id', 'id');
+    }
 
     public function empresa () {
         return $this->hasOne(Empresa::class, 'user_id', 'id');   
     }
-
 
 
     public function favorito() {

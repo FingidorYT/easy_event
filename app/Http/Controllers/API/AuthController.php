@@ -7,13 +7,54 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Empresa;
 use carbon\carbon;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    
+    public function users(Request $request)
+    {
+        $user = $request->user();
+        if($user->rol_id == 1 ){
+            $users = User::all();
+            return response()->json(['Users' => $users]);
+        }
+
+        return response()->json(['NO TIENES ACCESO']);
+
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user();
+        if ($user->rol_id == 1) {
+            $userdb = User::find($id);
+            if(!$userdb){
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
+            // eliminamos el producto
+            $userdb->delete();
+    
+            return response()->json(['message'=>'Usuario eliminado'], 200);
+        }
+        if ($user->rol_id !=1) {
+            $userdb = User::find($id);
+            if ($user->id == $userdb->id) {
+                $userdb->delete();
+                return response()->json(['message' => 'Usuario eliminado'], 200);
+            }
+            return response()->json(['error' => 'No puedes hacer eso'], 404);
+        }
+    }
+
+
+
+
     /**
      * Registro de usuario
      */
+
+
     public function signUp(Request $request)
     {
         $request->validate([
@@ -29,7 +70,8 @@ class AuthController extends Controller
         ]);
 
         $user=User::create([
-            'rol_id' => "1",
+            'rol_id' => "3",
+            'estado' => "activo",
             'cedula' => $request->cedula,
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -46,23 +88,26 @@ class AuthController extends Controller
 
     public function signUpEmpresario(Request $request)
     {
+
+        //return response()->json($request);
         $request->validate([
             'cedula' => 'required|unique:users',
-            'nombre' => 'required|string',
-            'apellido' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'fecha_nacimiento' => 'required|date',
+            'nombre' => 'required',
+            'apellido' => 'required',
+            'email' => 'required|string|unique:users',
+            'fecha_nacimiento' => 'required',
             'telefono' => 'required',
             'password' => 'required|string',
-            'nit_empresa' => 'required|numeric|unique:empresas',
+            'nit_empresa' => 'required|unique:empresas',
             'direccion_empresa' => 'required|string',
             'nombre_empresa' => 'required|string',
-            'telefono_empresa' => 'required|numeric|unique:empresas',
+            'telefono_empresa' => 'required|unique:empresas',
             'email_empresa' => 'required|string|unique:empresas',
         ]);
 
         $user=User::create([
             'rol_id' => "2",
+            'estado' => "pendiente",
             'cedula' => $request->cedula,
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -71,8 +116,9 @@ class AuthController extends Controller
             'telefono' => $request->telefono,
             'password' => bcrypt($request->password)
         ]);
-
+ try {
         Empresa::create([
+            'estado' => "pendiente",
             'nit_empresa' => $request->nit_empresa,
             'direccion_empresa' => $request->cedula,
             'nombre_empresa' => $request->nombre,
@@ -80,7 +126,37 @@ class AuthController extends Controller
             'email_empresa' => $request->email,
             'user_id' => $user->id,
         ]);
+        $change=false;
+        if ($request->hasFile('foto'))
+        {
+            $fileName=$request->file('foto')->getClientOriginalName();
+            $extFile=substr($fileName, strripos($fileName, "."));
+            $info_foto=
+            $pathi = $request->file('foto')->storeAs('my_files','user/'.$user->id.'/img'. $user->id."_img.png");
+            //$pathi = $request->file('foto')->storeAs('user/123/img_123_img'.$extFile,'my_files');
+            $user->foto = $pathi;
+            $change=TRUE;
+        } else {
+            return response()->json([
+                'message---' => 'No File'
+            ], 405);
+        }
+        /*if (!$request->hasFile('img_miniatura'))
+        {
+            $proceso->img_miniatura = "proceso/comun/img/no.png";
+            $change=TRUE;
 
+        }*/
+        if ($change==TRUE) {
+            $user->save();
+
+        }
+    } catch (Throwable $e) {
+        $user->delete();
+        return response()->json([
+            'message' => 'Error'
+        ], 500);
+    }
 
         return response()->json([
             'message' => 'Successfully created user!'
@@ -113,6 +189,17 @@ class AuthController extends Controller
             $token->expires_at = Carbon::now()->addWeeks(1);
         $token->save();
 
+        if($user->rol->id == 2){
+            $empresa = Empresa::where('user_id', $user->id)->first();
+            return response()->json([
+                'user' => $user,
+                'empresa' => $empresa,
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString()
+            ]);
+        }
+
         return response()->json([
             'user' => $user,
             'access_token' => $tokenResult->accessToken,
@@ -138,6 +225,26 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+        $user->rol;
+        return response()->json($user);
     }
+    
+    public function update (Request $request) {
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        $user->update([
+            'nombre' => $request->nombre,
+            'apellido' => $request->apellido,
+            'email' => $request->email,
+            'telefono' => $request->telefono,
+        ]);
+        return response()->json(['message' => 'Usuario actualizado', 'Usuario'=>$user]);
+    }
+
 }

@@ -15,8 +15,8 @@ class EmpresaApiController extends Controller
      */
     public function index()
     {
-        $empresas = Empresa::all();
-        return response()->json(['data' => $empresas], 200);
+        $empresa = Empresa::all();
+        return response()->json(['Empresa' => $empresa], 200);
     }
 
 
@@ -28,16 +28,27 @@ class EmpresaApiController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+
+        $this->validate($request, [
             'nit_empresa' => 'required|numeric',
             'direccion_empresa' => 'required|string',
             'nombre_empresa' => 'required|string',
             'telefono_empresa' => 'required|numeric',
             'email_empresa' => 'required|email',
+            'user_id' => 'required|numeric',
+
         ]);
 
-        $empresa = Empresa::create($request->all());
-        return response()->json(['data' => $empresa], 201);
+        $empresa = Empresa::create([
+            'nit_empresa' => $request->nit_empresa,
+            'direccion_empresa' => $request->direccion_empresa,
+            'nombre_empresa' => $request->nombre_empresa,
+            'telefono_empresa' => $request->telefono_empresa,
+            'email_empresa' => $request->email_empresa,
+            'user_id' => $request->user_id,
+        ]);
+
+        return response()->json(['Empresa' => $empresa], 201);
     }
 
 
@@ -47,9 +58,12 @@ class EmpresaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Empresa $empresa)
+    public function show($id)
     {
-        return response()->json(['data' => $empresa], 200);
+
+        $empresa= Empresa::find($id);
+        return response()->json($empresa,200);
+
     }
 
 
@@ -60,18 +74,33 @@ class EmpresaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Empresa $empresa)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'nit_empresa' => 'numeric',
-            'direccion_empresa' => 'string',
-            'nombre_empresa' => 'string',
-            'telefono_empresa' => 'numeric',
-            'email_empresa' => 'email',
+        $this->validate($request, [
+            'nit_empresa' => 'required|numeric',
+            'direccion_empresa' => 'required|string',
+            'nombre_empresa' => 'required|string',
+            'telefono_empresa' => 'required|numeric',
+            'email_empresa' => 'required|email',
+            'user_id' => 'required|numeric',
         ]);
 
-        $empresa->update($request->all());
-        return response()->json(['data' => $empresa], 200);
+        $empresa = Empresa::find($id);
+
+        if(!$empresa){
+            return response()->json(['error' => 'Producto no encontrado'], 404);
+        }
+
+        $empresa->update([
+            'nit_empresa' => $request->nit_empresa,
+            'direccion_empresa' => $request->direccion_empresa,
+            'nombre_empresa' => $request->nombre_empresa,
+            'telefono_empresa' => $request->telefono_empresa,
+            'email_empresa' => $request->email_empresa,
+            'user_id' => $request->user_id,
+            ]);
+
+        return response()->json(['message' => 'Empresa actualizada', 'Empresa'=>$empresa]);
     }
 
 
@@ -81,10 +110,18 @@ class EmpresaApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Empresa $empresa)
+    public function destroy($id)
     {
+
+        $empresa = Empresa::find($id);
+
+        if(!$empresa){
+            return response()->json(['error' => 'Empresa no encontrada'], 404);
+        }
+
         $empresa->delete();
-        return response(null, 204);
+
+        return response()->json(['message'=>'Empresa eliminada'], 200);
     }
 
 }

@@ -8,6 +8,8 @@ use App\Http\Controllers\API\ProductoApiController;
 use App\Http\Controllers\API\FavoritoApiController;
 use App\Http\Controllers\API\CategoriaApiController;
 use App\Http\Controllers\API\EmpresaApiController;
+use App\Http\Controllers\API\SancionApiController;
+
 
 
 /*
@@ -32,21 +34,45 @@ Route::group([
     Route::post('signup', [AuthController::class,'signUp']);
     Route::post('signup_empresario', [AuthController::class,'signUpEmpresario']);
   
-    Route::group([
-      'middleware' => 'auth:api'
-    ], function() {
-        Route::apiResource('producto', ProductoApiController::class);
-        Route::post('alquiler', [AlquilerApiController::class, 'show']);
-        Route::post('alquiler/actualizar', [AlquilerApiController::class, 'update']);
-        Route::post('alquiler/guardar', [AlquilerApiController::class, 'store']);
-        Route::get('logout', [AuthController::class,'logout']);
-        Route::get('user', [AuthController::class,'user']);
-        Route::get('producto', [ProductoApiController::class, 'index']);
-        Route::post('producto', [ProductoApiController::class, 'store']);
-        Route::get('producto/search', [ProductoApiController::class, 'search']);
-        Route::put('producto/{id}',[ProductoApiController::class, 'update']);
-        Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
-        Route::post('/agregar-favorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
-        Route::post('/eliminar-favorito/{producto}', [FavoritoApiController::class, 'eliminarFavorito']);
-    });
+
 });
+
+Route::group([
+    'middleware' => 'auth:api'
+  ], function() {
+      Route::get('users', [AuthController::class, 'users']);
+      Route::delete('user/{id}', [AuthController::class, 'delete']);
+      Route::put('user/edit', [AuthController::class, 'update']);
+      Route::apiResource('sancion', SancionApiController::class);
+      Route::apiResource('producto', ProductoApiController::class);
+      Route::get('getProductos/{id}',[ProductoApiController::class,'getProductosCategoria']);
+      Route::post('producto/search', [ProductoApiController::class, 'search']);
+      Route::post('producto/actualizar/{id}', [ProductoApiController::class, 'actualizar']);
+      Route::apiResource('empresa', EmpresaApiController::class);
+      Route::apiResource('categoria', CategoriaApiController::class);
+      Route::apiResource('favorito', FavoritoApiController::class);
+      Route::get('favoritos/user', [FavoritoApiController::class, 'listarfavoritos']);
+      Route::apiResource('alquiler', AlquilerApiController::class);
+      Route::get('alquileres/contar', [AlquilerApiController::class, 'contarAlquileres']);
+      Route::post('alquiler/filtrar', [AlquilerApiController::class, 'filtrarAlquileres']);
+      Route::get('logout', [AuthController::class, 'logout']);
+      
+
+
+      /*Route::delete('categoria/{id}', [CategoriaApiController::class, 'destroy']);
+      Route::post('alquiler', [AlquilerApiController::class, 'show']);
+      Route::post('alquiler/actualizar', [AlquilerApiController::class, 'update']);
+      Route::post('alquiler/guardar', [AlquilerApiController::class, 'store']);
+      Route::get('logout', [AuthController::class,'logout']);
+      Route::get('user', [AuthController::class,'user']);
+      Route::put('producto/{id}',[ProductoApiController::class, 'update']);
+      Route::delete('producto/{id}', [ProductoApiController::class, 'destroy']);
+      Route::post('/agregar-favorito/{producto}', [FavoritoApiController::class, 'agregarFavorito']);
+      Route::post('/eliminar-favorito/{producto}', [FavoritoApiController::class, 'eliminarFavorito']);*/
+
+      
+  });
+
+
+
+

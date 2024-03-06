@@ -18,13 +18,14 @@ class CreateProductosTable extends Migration
             $table->integer('codigo');
             $table->bigInteger('precio');
             $table->string('nombre_producto');
+            $table->string('descripcion');
             $table->integer('cantidad_disponible');
             $table->integer('cantidad_inventario');
             $table->foreignId('empresa_id'); 
             $table->foreign('empresa_id')->references('id')->on('empresas');
             $table->foreignId('categoria_id'); 
             $table->foreign('categoria_id')->references('id')->on('categorias');
-
+            $table->string('foto')->nullable()->default('my_files/productos/no.png');
             //$table->timestamps();
         });
     }

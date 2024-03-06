@@ -13,6 +13,8 @@ class Favorito extends Model
         'producto_id', 'user_id',
     ];
 
+    public $timestamps= false;
+
     public function user() {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
