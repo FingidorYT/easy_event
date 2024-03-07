@@ -27,8 +27,14 @@ class ProductoApiController extends Controller
             return response()->json(['Producto' => $productos]);
         
         }else {
-            $producto = Producto::all();
-            return response()->json(['Producto' => $producto]);
+            $productos = Producto::all();
+            
+            foreach($productos as $producto){
+                $empresa = Empresa::find($producto->empresa_id);
+                $producto->nombre_empresa = $empresa->nombre_empresa;
+            }
+            
+            return response()->json(['Producto' => $productos]);
         }
         
     }
@@ -286,10 +292,11 @@ class ProductoApiController extends Controller
         //encontrar por id
         $producto = Producto::find($id);
         $favorito = Favorito::where('producto_id', $producto->id)->delete();
-        if ($producto->foto) {
-            $ruta = "storage/$producto->foto";
-            unlink($ruta);
+        if ($producto->foto == 'my_files/productos/no.png') {
 
+        }else {
+                $ruta = "storage/$producto->foto";
+                unlink($ruta);
         }
 
         if(!$producto){
@@ -305,6 +312,10 @@ class ProductoApiController extends Controller
     public function getProductosCategoria($id)
     {
         $productos= Producto::where("categoria_id",$id)->get();
+        foreach($productos as $producto){
+            $empresa = Empresa::find($producto->empresa_id);
+            $producto->nombre_empresa = $empresa->nombre_empresa;
+        }
         return response()->json(['Producto' => $productos],200);
     }
 }

@@ -25,7 +25,7 @@ class CreateUsersTable extends Migration
             $table->date('fecha_nacimiento');
             $table->bigInteger('telefono');
             $table->string('estado');
-            $table->string('foto')->nullable();
+            $table->string('foto')->nullable()->default('my_files/productos/no.png');
             $table->string('password');
             $table->rememberToken();
             //$table->timestamps();
