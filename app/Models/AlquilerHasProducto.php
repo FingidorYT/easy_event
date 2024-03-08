@@ -10,7 +10,7 @@ class AlquilerHasProducto extends Model
     use HasFactory;
 
     protected $fillable = [
-        'estado', 'precio_envio', 'costos_adicionales'
+        'alquiler_id', 'producto_id', 'cantidad_recibida', 'cantidad_devuelta', 'precio'
     ];
 
     public function alquiler() {
@@ -20,4 +20,7 @@ class AlquilerHasProducto extends Model
     public function producto() {
         return $this->belongsTo(Producto::class, 'producto_id', 'id');
     }
+
+    public $timestamps= false;
+
 }

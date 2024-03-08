@@ -247,4 +247,21 @@ class AuthController extends Controller
         return response()->json(['message' => 'Usuario actualizado', 'Usuario'=>$user]);
     }
 
+    public function autologin (){
+        $user = Auth::user();
+    
+        if($user->rol->id == 2){
+            $empresa = Empresa::where('user_id', $user->id)->first();
+            return response()->json([
+                'user' => $user,
+                'empresa' => $empresa,
+            ]);
+        }
+
+        return response()->json([
+            'user' => $user,
+        ]);
+
+    }
+
 }

@@ -23,7 +23,7 @@ class CreateAlquilersTable extends Migration
             $table->date('fecha_alquiler')->default(now());
             $table->date('fecha_devolucion')->nullable();
             $table->string('estado_pedido')->default('carrito');
-            $table->string('estado_secuencia')->default('carrito');
+            $table->string('estado_secuencia')->default('Inactivo');
             $table->bigInteger('precio_envio')->nullable();
             $table->bigInteger('costos_adicionales')->nullable();
             $table->bigInteger('precio_alquiler')->default(0);

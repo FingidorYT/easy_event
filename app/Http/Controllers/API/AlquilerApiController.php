@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Alquiler;
+use App\Models\Empresa;
+use App\Models\AlquilerHasProducto;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -226,6 +228,14 @@ class AlquilerApiController extends Controller
                 ->where('al.user_id', $user->id)
                 ->where('al.estado_pedido', $estado)
                 ->get();
+
+            foreach($alquileres as $alquiler){
+
+                $empresa = Empresa::find($alquiler->empresa_id);
+                $alquiler->nombre_empresa = $empresa->nombre_empresa;
+
+            }
+                
                 return response()->json(['Producto' => $alquileres], 200);
 
 
@@ -283,11 +293,74 @@ class AlquilerApiController extends Controller
         // Puedes implementar la lógica para eliminar un alquiler específico (para el área de administrador).
         $alquiler = Alquiler::find($id);
 
+
         if ($alquiler) {
             $alquiler->delete();
             return response()->json(['mensaje' => 'Alquiler eliminado exitosamente'], 200);
         } else {
             return response()->json(['mensaje' => 'Alquiler no encontrado'], 404);
         }
+    }
+
+    public function carrito(Request $request){
+        $user = Auth::user();
+        $producto_id = $request->id;
+        $cantidad_producto = $request->cantidad;
+
+        $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', 'carrito')->first();
+        if ($alquiler){
+
+            $relacion = AlquilerHasProducto::where('alquiler_id', $alquiler->id)->where('producto_id', $producto_id)->first();
+            if($relacion){
+
+                $relacion->cantidad_recibida = $relacion->cantidad_recibida + $cantidad_producto;
+                $relacion->save();
+                return response()->json(['mensaje' => $relacion], 200);
+
+            }else {
+                $relacion = AlquilerHasProducto::create([
+                    'alquiler_id' => $alquiler->id,
+                    'producto_id' => $producto_id,
+                    'cantidad_recibida' => $cantidad_producto,
+                ]);
+                return response()->json(['producto creado' => $relacion], 200);
+            }
+            
+        } else {
+            $alquiler = Alquiler::create([
+                'user_id' => $user->id,
+            ]);
+
+            if ($alquiler){
+
+                $relacion = AlquilerHasProducto::where('alquiler_id', $alquiler->id)->where('producto_id', $producto_id)->first();
+            if($relacion){
+
+                $relacion->cantidad_recibida = $relacion->cantidad_recibida + $cantidad_producto;
+                $relacion->save();
+                return response()->json(['mensaje' => $relacion], 200);
+
+            }else {
+                $relacion = AlquilerHasProducto::create([
+                    'alquiler_id' => $alquiler->id,
+                    'producto_id' => $producto_id,
+                    'cantidad_recibida' => $cantidad_producto,
+                ]);
+                return response()->json(['producto creado' => $relacion], 200);
+            }
+
+            } else {
+                return response()->json(['Error'], 404);
+            }
+
+        }
+    }
+
+    public function deletecarrito(Request $request){
+         $user = Auth::user();
+         if ($user->rol_id == 2){
+            
+         }
+
     }
 }
