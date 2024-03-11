@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Alquiler;
 use App\Models\Empresa;
 use App\Models\AlquilerHasProducto;
+use App\Models\Producto;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -223,7 +224,7 @@ class AlquilerApiController extends Controller
                 ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
                 ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
                 ->join('users as us', 'al.user_id', '=', 'us.id')
-                ->select('pr.*')
+                ->select('pr.*', 'ap.cantidad_recibida')
                 ->distinct()
                 ->where('al.user_id', $user->id)
                 ->where('al.estado_pedido', $estado)
@@ -233,6 +234,7 @@ class AlquilerApiController extends Controller
 
                 $empresa = Empresa::find($alquiler->empresa_id);
                 $alquiler->nombre_empresa = $empresa->nombre_empresa;
+                $alquiler->precio_producto_total = $alquiler->precio * $alquiler->cantidad_recibida;
 
             }
                 
@@ -305,7 +307,10 @@ class AlquilerApiController extends Controller
     public function carrito(Request $request){
         $user = Auth::user();
         $producto_id = $request->id;
+        $producto = Producto::find($producto_id);
+        $precio = $producto->precio;
         $cantidad_producto = $request->cantidad;
+        
 
         $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', 'carrito')->first();
         if ($alquiler){
@@ -313,7 +318,7 @@ class AlquilerApiController extends Controller
             $relacion = AlquilerHasProducto::where('alquiler_id', $alquiler->id)->where('producto_id', $producto_id)->first();
             if($relacion){
 
-                $relacion->cantidad_recibida = $relacion->cantidad_recibida + $cantidad_producto;
+                $relacion->cantidad_recibida = $cantidad_producto;
                 $relacion->save();
                 return response()->json(['mensaje' => $relacion], 200);
 
@@ -322,6 +327,7 @@ class AlquilerApiController extends Controller
                     'alquiler_id' => $alquiler->id,
                     'producto_id' => $producto_id,
                     'cantidad_recibida' => $cantidad_producto,
+                    'precio' => $precio,
                 ]);
                 return response()->json(['producto creado' => $relacion], 200);
             }
@@ -345,6 +351,7 @@ class AlquilerApiController extends Controller
                     'alquiler_id' => $alquiler->id,
                     'producto_id' => $producto_id,
                     'cantidad_recibida' => $cantidad_producto,
+                    'precio' => $precio,
                 ]);
                 return response()->json(['producto creado' => $relacion], 200);
             }

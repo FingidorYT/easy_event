@@ -21,7 +21,7 @@ class CreateAlquilerHasProductosTable extends Migration
             $table->foreign('producto_id')->references('id')->on('productos');
             $table->bigInteger('cantidad_recibida')->nullable();
             $table->bigInteger('cantidad_devuelta')->nullable();
-            $table->bigInteger('Precio');
+            $table->bigInteger('precio');
             
             //$table->timestamps();
         });
