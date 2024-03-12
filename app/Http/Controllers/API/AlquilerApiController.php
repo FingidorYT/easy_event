@@ -39,7 +39,6 @@ class AlquilerApiController extends Controller
             ->where('estado_secuencia', 'activo')
             ->orWhere('estado_secuencia', 'finalizado')
             ->get();
-            
 
             return response()->json(['Alquileres'=>$alquileres]);
            
@@ -219,27 +218,69 @@ class AlquilerApiController extends Controller
                 return response()->json(['Alquileres' => $alquileres], 200); 
 
         }else if ($rol_id ==3 ){
-            $alquileres = DB::table('alquilers as al')
-                ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
-                ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
-                ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
-                ->join('users as us', 'al.user_id', '=', 'us.id')
-                ->select('pr.*', 'ap.cantidad_recibida')
-                ->distinct()
-                ->where('al.user_id', $user->id)
-                ->where('al.estado_pedido', $estado)
-                ->get();
-
-            foreach($alquileres as $alquiler){
-
-                $empresa = Empresa::find($alquiler->empresa_id);
-                $alquiler->nombre_empresa = $empresa->nombre_empresa;
-                $alquiler->precio_producto_total = $alquiler->precio * $alquiler->cantidad_recibida;
-
-            }
+            $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido',$estado)->first();
+            if ($estado == "carrito"){ 
+                $alquileres = DB::table('alquilers as al')
+                    ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                    ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                    ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                    ->join('users as us', 'al.user_id', '=', 'us.id')
+                    ->select('pr.*', 'ap.cantidad_recibida')
+                    ->distinct()
+                    ->where('al.user_id', $user->id)
+                    ->where('al.estado_pedido', $estado)
+                    ->get();
                 
-                return response()->json(['Producto' => $alquileres], 200);
+                    $precio_subtotal = DB::table('alquiler_has_productos')
+                        ->where('alquiler_id', $alquiler->id)
+                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                        ->sum(DB::raw('productos.precio * alquiler_has_productos.cantidad_recibida'));
 
+                $alquiler_has_productos = AlquilerHasProducto::where('', '');
+
+                foreach($alquileres as $alquil){
+
+                    $empresa = Empresa::find($alquil->empresa_id);
+                    $producto = Producto::find($alquil->id);
+                    $alquil->precio = $producto->precio;
+
+                    $alquil->nombre_empresa = $empresa->nombre_empresa;
+                    $alquil->precio_producto_total = $producto->precio * $alquil->cantidad_recibida;
+                    
+                }       
+                
+
+
+            }else if ($estado == "solicitud"){
+                $alquileres = DB::table('alquilers as al')
+                    ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                    ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                    ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                    ->join('users as us', 'al.user_id', '=', 'us.id')
+                    ->select('pr.*', 'ap.cantidad_recibida','ap.precio as precio_viejo')
+                    ->distinct()
+                    ->where('al.user_id', $user->id)
+                    ->where('al.estado_pedido', $estado)
+                    ->get();
+
+                    $precio_subtotal = DB::table('alquiler_has_productos')
+                        ->where('alquiler_id', $alquiler->id)
+                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                        ->sum(DB::raw('alquiler_has_productos.precio * alquiler_has_productos.cantidad_recibida'));
+
+                        foreach($alquileres as $alquil){
+
+                            $empresa = Empresa::find($alquil->empresa_id);
+                            $alquil->nombre_empresa = $empresa->nombre_empresa;
+                            $alquil->precio_producto_total = $alquil->precio * $alquil->cantidad_recibida;
+            
+                        }
+                     
+            }
+
+           
+                
+                return response()->json(['alquiler_id'=>$alquiler->id,'precio_alquiler'=>$precio_subtotal, 'Producto' => $alquileres], 200);
 
         }else{
 
@@ -255,27 +296,23 @@ class AlquilerApiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update($id, Request $request)
     {
         // Actualizar un alquiler existente (para el área de administrador).
-        $user_id = $request->user_id;
+        $user = Auth::user();
+
 
         // Buscar alquileres pendientes del usuario.
-        $alquiler = Alquiler::where('user_id', $user_id)->where('estado', "pendiente")->first();
+        $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', "carrito")->where('estado_secuencia', "Inactivo")->where('id', $id)->first();
 
-        if ($alquiler) {
-            // Validar la solicitud de actualización.
-            $request->validate([
-                "user_id" => "required|numeric",
-                "metodo_pago" => "required|string",
-                "lugar_entrega" => "required|string",
-                "fecha_alquiler" => "required|date",
-                "fecha_devolucion" => "required|date",
-            ]);
-
+        if ($alquiler){
             // Actualizar el alquiler.
-            $alquiler->update($request->all());
-
+            $alquiler->estado_pedido = "solicitud";
+            $alquiler->metodo_pago = $request->metodo_pago;
+            $alquiler->lugar_entrega = $request->lugar_entrega;
+            $alquiler->fecha_alquiler = $request->fecha_alquiler;
+            $alquiler->fecha_devolucion = $request->fecha_devolucion;
+            $alquiler->update();
             // Devolver la respuesta actualizada.
             return response()->json(['mensaje' => 'Alquiler actualizado exitosamente', 'alquiler' => $alquiler], 200);
         } else {
