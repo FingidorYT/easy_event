@@ -102,23 +102,21 @@ class AlquilerApiController extends Controller
             ->where('al.id', $id)
             ->first();
             
-            $precio_total = DB::table('alquiler_has_productos')
-            ->where('alquiler_id', $id)
-            ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
-            ->sum(DB::raw('productos.precio * alquiler_has_productos.cantidad_recibida'));
-
         
             $productos = DB::table('alquilers as al')
             ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
             ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
             ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
             ->join('users as us', 'al.user_id', '=', 'us.id')
-            ->select('pr.*','ap.*')
+            ->select('pr.*','ap.*','ap.precio as precio', 'ap.producto_Id as id')
             ->distinct()
             ->where('al.id', $id)
             ->get();
-            
-            $alquiler->precio_total = $precio_total;
+
+            foreach($productos as $producto){
+                $producto->precio_producto_total = $producto->precio * $producto->cantidad_recibida;
+            }
+
             $alquiler->productos = $productos;
 
             return response()->json($alquiler, 200); 
@@ -189,32 +187,6 @@ class AlquilerApiController extends Controller
                 ->where('al.estado_pedido', $estado)
                 ->get();
                 
-                foreach ($alquileres as $alquiler) {
-                    $precio_total = DB::table('alquiler_has_productos')
-                        ->where('alquiler_id', $alquiler->id)
-                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
-                        ->sum(DB::raw('productos.precio * alquiler_has_productos.cantidad_recibida'));
-                        $alquiler->precio_total = $precio_total;
-
-                }
-
-                foreach($alquileres as $alquiler){
-                    $productos = DB::table('alquilers as al')
-                ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
-                ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
-                ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
-                ->join('users as us', 'al.user_id', '=', 'us.id')
-                ->select('pr.*','ap.*')
-                ->distinct()
-                ->where('al.id', $alquiler->id)
-                ->where('pr.empresa_id', $empresa->id)
-                ->where('al.estado_pedido', $estado)
-                ->get();
-
-                $alquiler->productos = $productos;
-
-                }
-                
                 return response()->json(['Alquileres' => $alquileres], 200); 
 
         }else if ($rol_id ==3 ){
@@ -243,7 +215,6 @@ class AlquilerApiController extends Controller
                     $empresa = Empresa::find($alquil->empresa_id);
                     $producto = Producto::find($alquil->id);
                     $alquil->precio = $producto->precio;
-
                     $alquil->nombre_empresa = $empresa->nombre_empresa;
                     $alquil->precio_producto_total = $producto->precio * $alquil->cantidad_recibida;
                     
@@ -304,6 +275,31 @@ class AlquilerApiController extends Controller
 
         // Buscar alquileres pendientes del usuario.
         $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', "carrito")->where('estado_secuencia', "Inactivo")->where('id', $id)->first();
+        
+        if($alquiler){
+            $alquileres = DB::table('alquilers as al')
+                    ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                    ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                    ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                    ->join('users as us', 'al.user_id', '=', 'us.id')
+                    ->select('pr.*', 'ap.cantidad_recibida')
+                    ->distinct()
+                    ->where('al.user_id', $user->id)
+                    ->where('ap.alquiler_id', $id)
+                    ->get();
+                    
+                $relaciones = AlquilerHasProducto::where('alquiler_id', $id)->get();
+                
+                foreach($relaciones as $relacion){
+                    $producto = Producto::find($relacion->id);
+                    $relacion->precio = $producto->precio;
+                    $relacion->save();
+                }       
+
+        $precio_subtotal = DB::table('alquiler_has_productos')
+                        ->where('alquiler_id', $alquiler->id)
+                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                        ->sum(DB::raw('alquiler_has_productos.precio * alquiler_has_productos.cantidad_recibida'));
 
         if ($alquiler){
             // Actualizar el alquiler.
@@ -312,9 +308,12 @@ class AlquilerApiController extends Controller
             $alquiler->lugar_entrega = $request->lugar_entrega;
             $alquiler->fecha_alquiler = $request->fecha_alquiler;
             $alquiler->fecha_devolucion = $request->fecha_devolucion;
+            $alquiler->precio_alquiler = $precio_subtotal;    
             $alquiler->update();
             // Devolver la respuesta actualizada.
             return response()->json(['mensaje' => 'Alquiler actualizado exitosamente', 'alquiler' => $alquiler], 200);
+            
+        }
         } else {
             // Indicar que no hay alquileres pendientes para el usuario.
             return response()->json(['mensaje' => 'No tiene alquileres pendientes'], 404);
@@ -356,6 +355,7 @@ class AlquilerApiController extends Controller
             if($relacion){
 
                 $relacion->cantidad_recibida = $cantidad_producto;
+                $relacion->precio = $precio;
                 $relacion->save();
                 return response()->json(['mensaje' => $relacion], 200);
 
@@ -380,6 +380,7 @@ class AlquilerApiController extends Controller
             if($relacion){
 
                 $relacion->cantidad_recibida = $relacion->cantidad_recibida + $cantidad_producto;
+                $relacion->precio = $precio;
                 $relacion->save();
                 return response()->json(['mensaje' => $relacion], 200);
 

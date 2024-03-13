@@ -268,7 +268,6 @@ class ProductoApiController extends Controller
 
         } else
         {
-            $producto->foto = "my_files/productos/no.png";
             $change=TRUE;
 
         }
