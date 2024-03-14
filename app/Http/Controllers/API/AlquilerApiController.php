@@ -271,49 +271,80 @@ class AlquilerApiController extends Controller
     {
         // Actualizar un alquiler existente (para el área de administrador).
         $user = Auth::user();
-
-
-        // Buscar alquileres pendientes del usuario.
-        $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', "carrito")->where('estado_secuencia', "Inactivo")->where('id', $id)->first();
         
-        if($alquiler){
-            $alquileres = DB::table('alquilers as al')
-                    ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
-                    ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
-                    ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
-                    ->join('users as us', 'al.user_id', '=', 'us.id')
-                    ->select('pr.*', 'ap.cantidad_recibida')
-                    ->distinct()
-                    ->where('al.user_id', $user->id)
-                    ->where('ap.alquiler_id', $id)
-                    ->get();
-                    
-                $relaciones = AlquilerHasProducto::where('alquiler_id', $id)->get();
-                
-                foreach($relaciones as $relacion){
-                    $producto = Producto::find($relacion->id);
-                    $relacion->precio = $producto->precio;
-                    $relacion->save();
-                }       
 
-        $precio_subtotal = DB::table('alquiler_has_productos')
-                        ->where('alquiler_id', $alquiler->id)
-                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
-                        ->sum(DB::raw('alquiler_has_productos.precio * alquiler_has_productos.cantidad_recibida'));
+        if($user->rol_id == 2){
+            $respuesta = $request->respuesta;
 
-        if ($alquiler){
-            // Actualizar el alquiler.
-            $alquiler->estado_pedido = "solicitud";
-            $alquiler->metodo_pago = $request->metodo_pago;
-            $alquiler->lugar_entrega = $request->lugar_entrega;
-            $alquiler->fecha_alquiler = $request->fecha_alquiler;
-            $alquiler->fecha_devolucion = $request->fecha_devolucion;
-            $alquiler->precio_alquiler = $precio_subtotal;    
-            $alquiler->update();
-            // Devolver la respuesta actualizada.
-            return response()->json(['mensaje' => 'Alquiler actualizado exitosamente', 'alquiler' => $alquiler], 200);
+            $empresa = $user->empresa;
+            $alquiler =  DB::table('alquilers as al')
+            ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+            ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+            ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+            ->join('users as us', 'al.user_id', '=', 'us.id')
+            ->select('al.*', 'us.nombre', 'us.apellido', 'us.telefono', 'us.foto')
+            ->distinct()
+            ->where('pr.empresa_id', $empresa->id)
+            ->where('al.id', $id)
+            ->first();
+
+            if($respuesta == "rechazar"){
+                $alquilerup = Alquiler::find($alquiler->id);
+                $alquilerup->estado_pedido = "rechazado";
+                $alquilerup->estado_secuencia = "Finalizado";
+                $alquilerup->save();
+                return response()->json(['Alquiler rechazado correctamente' => $alquilerup], 200);
+
+            }
+
             
-        }
+
+
+        }else if($user->rol_id == 3){
+            $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', "carrito")->where('estado_secuencia', "Inactivo")->where('id', $id)->first();
+        
+            if($alquiler){
+                $alquileres = DB::table('alquilers as al')
+                        ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                        ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                        ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                        ->join('users as us', 'al.user_id', '=', 'us.id')
+                        ->select('pr.*', 'ap.cantidad_recibida')
+                        ->distinct()
+                        ->where('al.user_id', $user->id)
+                        ->where('ap.alquiler_id', $id)
+                        ->get();
+                        
+                    $relaciones = AlquilerHasProducto::where('alquiler_id', $id)->get();
+                    
+                    foreach($relaciones as $relacion){
+                        $producto = Producto::find($relacion->producto_id);
+                        $relacion->precio = $producto->precio;
+                        $relacion->save();
+                    }       
+
+                $precio_subtotal = DB::table('alquiler_has_productos')
+                            ->where('alquiler_id', $alquiler->id)
+                            ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                            ->sum(DB::raw('alquiler_has_productos.precio * alquiler_has_productos.cantidad_recibida'));
+
+                // Actualizar el alquiler.
+                $alquiler->estado_pedido = "solicitud";
+                $alquiler->metodo_pago = $request->metodo_pago;
+                $alquiler->lugar_entrega = $request->lugar_entrega;
+                $alquiler->fecha_alquiler = $request->fecha_alquiler;
+                $alquiler->fecha_devolucion = $request->fecha_devolucion;
+                $alquiler->precio_alquiler = $precio_subtotal;    
+                $alquiler->update();
+                // Devolver la respuesta actualizada.
+                return response()->json(['mensaje' => 'Alquiler actualizado exitosamente', 'alquiler' => $alquiler], 200);
+                
+            
+
+            } else {
+                return response()->json(['mensaje' => 'No tiene alquileres pendientes'], 404);
+
+            }
         } else {
             // Indicar que no hay alquileres pendientes para el usuario.
             return response()->json(['mensaje' => 'No tiene alquileres pendientes'], 404);
