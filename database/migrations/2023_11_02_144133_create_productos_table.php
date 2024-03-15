@@ -18,7 +18,7 @@ class CreateProductosTable extends Migration
             $table->integer('codigo');
             $table->bigInteger('precio');
             $table->string('nombre_producto');
-            $table->string('descripcion');
+            $table->text('descripcion');
             $table->integer('cantidad_disponible');
             $table->integer('cantidad_inventario');
             $table->foreignId('empresa_id'); 
