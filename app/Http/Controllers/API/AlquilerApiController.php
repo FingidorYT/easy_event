@@ -44,7 +44,7 @@ class AlquilerApiController extends Controller
            
         }elseif ($rol_id == 3 ) {
 
-            $alquileres = Alquiler::where('user_id', $user->id)->where('estado_pedido', 'activo')->orWhere('estado_pedido', 'finalizado')->get();
+            $alquileres = Alquiler::where('user_id', $user->id)->where('estado_secuencia', 'Activo')->orWhere('estado_secuencia', 'Inactivo')->orWhere('estado_secuencia', 'Finalizado')->get();
             return response()->json(['Alquileres' => $alquileres]);
 
         }
@@ -288,20 +288,40 @@ class AlquilerApiController extends Controller
             ->where('al.id', $id)
             ->first();
 
-            if($respuesta == "rechazar"){
-                $alquilerup = Alquiler::find($alquiler->id);
-                $alquilerup->estado_pedido = "rechazado";
-                $alquilerup->estado_secuencia = "Finalizado";
-                $alquilerup->save();
-                return response()->json(['Alquiler rechazado correctamente' => $alquilerup], 200);
+            switch ($respuesta){
+
+                case "rechazar":
+                    $alquilerup = Alquiler::find($alquiler->id);
+                    $alquilerup->estado_pedido = "rechazado";
+                    $alquilerup->estado_secuencia = "Finalizado";
+                    $alquilerup->save();
+                    return response()->json(['Alquiler rechazado correctamente' => $alquilerup], 200);
+                    break;
+
+                case "aceptar":
+                    $alquilerup = Alquiler::find($alquiler->id);
+                    $alquilerup->estado_pedido = "aceptado";
+                    $alquilerup->estado_secuencia = "Activo";
+                    $alquilerup->save();
+                    return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
+                    break;
+
+                case "aceptar_modificacion":
+                    $alquilerup = Alquiler::find($alquiler->id);
+                    $alquilerup->estado_pedido = "aceptado_empresario";
+                    $alquilerup->estado_secuencia = "Inactivo";
+                    $alquilerup->save();
+                    return response()->json(['Alquiler aceptado con modificaciones correctamente' => $alquilerup], 200);
+                    break;
 
             }
 
             
 
 
-        }else if($user->rol_id == 3){
+        } else if($user->rol_id == 3){
             $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', "carrito")->where('estado_secuencia', "Inactivo")->where('id', $id)->first();
+            $respuesta = $request->respuesta;
         
             if($alquiler){
                 $alquileres = DB::table('alquilers as al')
