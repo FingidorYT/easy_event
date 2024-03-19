@@ -44,7 +44,12 @@ class AlquilerApiController extends Controller
            
         }elseif ($rol_id == 3 ) {
 
-            $alquileres = Alquiler::where('user_id', $user->id)->where('estado_secuencia', 'Activo')->orWhere('estado_secuencia', 'Inactivo')->orWhere('estado_secuencia', 'Finalizado')->get();
+            $alquileres = Alquiler::where('user_id', $user->id)->where('estado_secuencia', 'Activo')
+            ->orWhere('estado_pedido', 'Aceptado')
+            ->orWhere('estado_pedido', 'Modificado')
+            ->orWhere('estado_pedido', 'aceptado_empresario')
+            ->orWhere('estado_pedido', 'Solicitud')
+            ->orWhere('estado_pedido', 'Rechazado')->get();
             return response()->json(['Alquileres' => $alquileres]);
 
         }
@@ -122,7 +127,18 @@ class AlquilerApiController extends Controller
             return response()->json($alquiler, 200); 
 
         }else{
-            return;
+            $alquiler = Alquiler::where('id', $id)->where('user_id', $user->id)->first();
+            $productos =  DB::table('alquiler_has_productos as ap')
+            ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+            ->select('pr.*','ap.*','ap.precio as precio', 'ap.producto_Id as id')
+            ->distinct()
+            ->where('ap.alquiler_id', $alquiler->id)
+            ->get(); 
+
+            $alquiler->productos = $productos;
+
+            return response()->json($alquiler, 200);
+
         }
         
 
@@ -327,7 +343,30 @@ class AlquilerApiController extends Controller
 
         } else if($user->rol_id == 3){
             $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', "carrito")->where('estado_secuencia', "Inactivo")->where('id', $id)->first();
+            $alquiler_respuesta = Alquiler::where('user_id', $user->id)
+            ->where('estado_pedido', "Modificado")
+            ->orwhere('estado_pedido', "Aceptado_empresario")
+            ->where('estado_secuencia', "Inactivo")
+            ->where('id', $id)->first();
             $respuesta = $request->respuesta;
+
+            if ($alquiler_respuesta){
+                if($respuesta == "rechazar"){
+                    $alquiler_respuesta->estado_pedido = "Rechazado";
+                    $alquiler_respuesta->estado_secuencia = "Finalizado";
+                    $alquiler_respuesta->update();
+                    // Devolver la respuesta actualizada.
+                    return response()->json(['mensaje' => 'Alquiler actualizado exitosamente', 'alquiler' => $alquiler_respuesta], 200);
+
+                }else {
+                    $alquiler_respuesta->estado_secuencia = "Activo";
+                    $alquiler_respuesta->estado_pedido = "Aceptado";
+                    $alquiler_respuesta->update();
+                    // Devolver la respuesta actualizada.
+                    return response()->json(['mensaje' => 'Alquiler actualizado exitosamente', 'alquiler' => $alquiler_respuesta], 200);
+
+                }
+            }
         
             if($alquiler){
                 $alquileres = DB::table('alquilers as al')
