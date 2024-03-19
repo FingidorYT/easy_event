@@ -300,10 +300,19 @@ class AlquilerApiController extends Controller
 
                 case "aceptar":
                     $alquilerup = Alquiler::find($alquiler->id);
-                    $alquilerup->estado_pedido = "aceptado";
-                    $alquilerup->estado_secuencia = "Activo";
-                    $alquilerup->save();
-                    return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
+                    if($alquilerup->lugar_entrega != "Recoger"){
+                        $alquilerup->precio_envio = $request->precio_envio;
+                        $alquilerup->precio_alquiler = $alquilerup->precio_alquiler +  $request->precio_envio;
+                        $alquilerup->estado_pedido = "aceptado_empresario";
+                        $alquilerup->estado_secuencia = "Inactivo";
+                        $alquilerup->save();
+                        return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
+                    }else{
+                        $alquilerup->estado_pedido = "Aceptado";
+                        $alquilerup->estado_secuencia = "Activo";
+                        $alquilerup->save();
+                        return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
+                    }
                     break;
 
                 case "aceptar_modificacion":
@@ -315,9 +324,6 @@ class AlquilerApiController extends Controller
                     break;
 
             }
-
-            
-
 
         } else if($user->rol_id == 3){
             $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', "carrito")->where('estado_secuencia', "Inactivo")->where('id', $id)->first();
