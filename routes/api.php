@@ -56,8 +56,10 @@ Route::group([
       Route::get('alquileres/contar', [AlquilerApiController::class, 'contarAlquileres']);
       Route::post('alquiler/filtrar', [AlquilerApiController::class, 'filtrarAlquileres']);
       Route::post('alquileres/carrito', [AlquilerApiController::class, 'carrito']);
+      Route::post('alquileres/delete_carrito', [AlquilerApiController::class, 'deletecarrito']);
       Route::get('logout', [AuthController::class, 'logout']);
       Route::get('autologin', [AuthController::class, 'autologin']);
+
       
 
 

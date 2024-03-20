@@ -207,67 +207,86 @@ class AlquilerApiController extends Controller
 
         }else if ($rol_id ==3 ){
             $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido',$estado)->first();
-            if ($estado == "carrito"){ 
-                $alquileres = DB::table('alquilers as al')
-                    ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
-                    ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
-                    ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
-                    ->join('users as us', 'al.user_id', '=', 'us.id')
-                    ->select('pr.*', 'ap.cantidad_recibida')
-                    ->distinct()
-                    ->where('al.user_id', $user->id)
-                    ->where('al.estado_pedido', $estado)
-                    ->get();
-                
-                    $precio_subtotal = DB::table('alquiler_has_productos')
-                        ->where('alquiler_id', $alquiler->id)
-                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
-                        ->sum(DB::raw('productos.precio * alquiler_has_productos.cantidad_recibida'));
+            if ($alquiler){
 
-                $alquiler_has_productos = AlquilerHasProducto::where('', '');
-
-                foreach($alquileres as $alquil){
-
-                    $empresa = Empresa::find($alquil->empresa_id);
-                    $producto = Producto::find($alquil->id);
-                    $alquil->precio = $producto->precio;
-                    $alquil->nombre_empresa = $empresa->nombre_empresa;
-                    $alquil->precio_producto_total = $producto->precio * $alquil->cantidad_recibida;
+                if ($estado == "carrito"){ 
+                    $alquileres = DB::table('alquilers as al')
+                        ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                        ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                        ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                        ->join('users as us', 'al.user_id', '=', 'us.id')
+                        ->select('pr.*', 'ap.cantidad_recibida','al.id as alquiler_id')
+                        ->distinct()
+                        ->where('al.user_id', $user->id)
+                        ->where('al.estado_pedido', $estado)
+                        ->get();
                     
-                }       
+                        $precio_subtotal = DB::table('alquiler_has_productos')
+                            ->where('alquiler_id', $alquiler->id)
+                            ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                            ->sum(DB::raw('productos.precio * alquiler_has_productos.cantidad_recibida'));
+    
+                    $alquiler_has_productos = AlquilerHasProducto::where('', '');
+               
+                    foreach($alquileres as $alquil){
+    
+                        $empresa = Empresa::find($alquil->empresa_id);
+                        $producto = Producto::find($alquil->id);
+                        $alquil->precio = $producto->precio;
+                        $alquil->nombre_empresa = $empresa->nombre_empresa;
+                        $alquil->precio_producto_total = $producto->precio * $alquil->cantidad_recibida;
+                            
+                    }       
+    
+                    
+                    
+    
+    
+                }else if ($estado == "solicitud"){
+                    $alquileres = DB::table('alquilers as al')
+                        ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
+                        ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
+                        ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
+                        ->join('users as us', 'al.user_id', '=', 'us.id')
+                        ->select('pr.*', 'ap.cantidad_recibida','ap.precio as precio_viejo')
+                        ->distinct()
+                        ->where('al.user_id', $user->id)
+                        ->where('al.estado_pedido', $estado)
+                        ->get();
+    
+                        $precio_subtotal = DB::table('alquiler_has_productos')
+                            ->where('alquiler_id', $alquiler->id)
+                            ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
+                            ->sum(DB::raw('alquiler_has_productos.precio * alquiler_has_productos.cantidad_recibida'));
+    
+                            foreach($alquileres as $alquil){
+    
+                                $empresa = Empresa::find($alquil->empresa_id);
+                                $alquil->nombre_empresa = $empresa->nombre_empresa;
+                                $alquil->precio_producto_total = $alquil->precio * $alquil->cantidad_recibida;
                 
+                            }
+                         
+                }
+    
+                if ($alquiler && $precio_subtotal && $alquileres){
 
+                    return response()->json(['alquiler_id'=>$alquiler->id,'precio_alquiler'=>$precio_subtotal, 'Producto' => $alquileres], 200);
+    
+                }else{
+                    return response()->json(['ERROR'], 200);
+    
+                }
 
-            }else if ($estado == "solicitud"){
-                $alquileres = DB::table('alquilers as al')
-                    ->join('alquiler_has_productos as ap', 'al.id', '=', 'ap.alquiler_id')
-                    ->join('productos as pr', 'ap.producto_id', '=', 'pr.id')
-                    ->join('empresas as em', 'pr.empresa_id', '=', 'em.id')
-                    ->join('users as us', 'al.user_id', '=', 'us.id')
-                    ->select('pr.*', 'ap.cantidad_recibida','ap.precio as precio_viejo')
-                    ->distinct()
-                    ->where('al.user_id', $user->id)
-                    ->where('al.estado_pedido', $estado)
-                    ->get();
+            } else {
 
-                    $precio_subtotal = DB::table('alquiler_has_productos')
-                        ->where('alquiler_id', $alquiler->id)
-                        ->join('productos', 'alquiler_has_productos.producto_id', '=', 'productos.id')
-                        ->sum(DB::raw('alquiler_has_productos.precio * alquiler_has_productos.cantidad_recibida'));
+                return response()->json(['No hay productos'], 200);
 
-                        foreach($alquileres as $alquil){
-
-                            $empresa = Empresa::find($alquil->empresa_id);
-                            $alquil->nombre_empresa = $empresa->nombre_empresa;
-                            $alquil->precio_producto_total = $alquil->precio * $alquil->cantidad_recibida;
-            
-                        }
-                     
             }
+            
 
            
                 
-                return response()->json(['alquiler_id'=>$alquiler->id,'precio_alquiler'=>$precio_subtotal, 'Producto' => $alquileres], 200);
 
         }else{
 
@@ -499,9 +518,28 @@ class AlquilerApiController extends Controller
 
     public function deletecarrito(Request $request){
          $user = Auth::user();
-         if ($user->rol_id == 2){
-            
+
+         $alquiler = Alquiler::where('id', $request->id)->where('user_id', $user->id)->where('estado_pedido', 'carrito')->first();
+
+         if($alquiler){
+                
+            $relacion = AlquilerHasProducto::where('alquiler_id', $alquiler->id)->where('producto_id', $request->producto_id)->first();
+            if($relacion){
+                $relacion->delete();
+                return response()->json(['mensaje' => 'Producto carrito eliminado exitosamente'], 200);
+
+            }else{
+                return response()->json(['mensaje' => 'Producto carrito no encontrado'], 404);
+            }
+
          }
+
+         
+
+
+
+            
+         
 
     }
 }
