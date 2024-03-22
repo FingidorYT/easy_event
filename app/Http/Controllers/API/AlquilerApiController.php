@@ -335,19 +335,37 @@ class AlquilerApiController extends Controller
 
                 case "aceptar":
                     $alquilerup = Alquiler::find($alquiler->id);
-                    if($alquilerup->lugar_entrega != "Recoger"){
-                        $alquilerup->precio_envio = $request->precio_envio;
-                        $alquilerup->precio_alquiler = $alquilerup->precio_alquiler +  $request->precio_envio;
-                        $alquilerup->estado_pedido = "aceptado_empresario";
-                        $alquilerup->estado_secuencia = "Inactivo";
-                        $alquilerup->save();
-                        return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
-                    }else{
-                        $alquilerup->estado_pedido = "Aceptado";
-                        $alquilerup->estado_secuencia = "Activo";
-                        $alquilerup->save();
-                        return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
+                    if($alquilerup){
+
+                        $relaciones = AlquilerHasProducto::where('alquiler_id', $alquilerup->id)->get();
+
+                        foreach ($relaciones as $relacion){
+
+                            $producto = Producto::find($relacion->producto_id);
+                            $producto->cantidad_disponible = $producto->cantidad_disponible - $relacion->cantidad_recibida;
+                            $producto->save();
+
+                        }
+
+                        if($alquilerup->lugar_entrega != "Recoger"){
+                            $alquilerup->precio_envio = $request->precio_envio;
+                            $alquilerup->precio_alquiler = $alquilerup->precio_alquiler +  $request->precio_envio;
+                            $alquilerup->estado_pedido = "aceptado_empresario";
+                            $alquilerup->estado_secuencia = "Inactivo";
+                            $alquilerup->save();
+                            return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
+                        }else{
+                            $alquilerup->estado_pedido = "Aceptado";
+                            $alquilerup->estado_secuencia = "Activo";
+                            $alquilerup->save();
+                            return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
+            
                     }
+
+                    }else{
+                        return response()->json(['Alquiler no encontrado' => $alquilerup], 200);
+                    }
+                    
                     break;
 
                 case "aceptar_modificacion":
