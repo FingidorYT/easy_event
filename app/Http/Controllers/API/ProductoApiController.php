@@ -27,7 +27,7 @@ class ProductoApiController extends Controller
             return response()->json(['Producto' => $productos]);
         
         }else {
-            $productos = Producto::all();
+            $productos = Producto::where('cantidad_disponible', '>', 0)->get();
             
             foreach($productos as $producto){
                 $empresa = Empresa::find($producto->empresa_id);
@@ -104,6 +104,7 @@ class ProductoApiController extends Controller
         if ($categoria) {
             $producto = Producto::where('codigo', 'like', "%$busqueda%")
                             ->orWhere('nombre_producto', 'like',"%$busqueda%")
+                            ->where('cantidad_disponible', '>', 0)
                             ->where('categoria_id', $categoria->id)
                             ->get();
 
@@ -113,6 +114,7 @@ class ProductoApiController extends Controller
 
         $producto = Producto::where('codigo', 'like', "%$busqueda%")
                             ->orWhere('nombre_producto', 'like',"%$busqueda%")
+                            ->where('cantidad_disponible', '>', 0)
                             ->get();
         
 
@@ -310,7 +312,7 @@ class ProductoApiController extends Controller
 
     public function getProductosCategoria($id)
     {
-        $productos= Producto::where("categoria_id",$id)->get();
+        $productos= Producto::where("categoria_id",$id)->where('cantidad_disponible', '>', 0)->get();
         foreach($productos as $producto){
             $empresa = Empresa::find($producto->empresa_id);
             $producto->nombre_empresa = $empresa->nombre_empresa;

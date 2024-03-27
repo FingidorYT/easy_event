@@ -327,7 +327,7 @@ class AlquilerApiController extends Controller
 
                 case "rechazar":
                     $alquilerup = Alquiler::find($alquiler->id);
-                    $alquilerup->estado_pedido = "rechazado";
+                    $alquilerup->estado_pedido = "Rechazado";
                     $alquilerup->estado_secuencia = "Finalizado";
                     $alquilerup->save();
                     return response()->json(['Alquiler rechazado correctamente' => $alquilerup], 200);
@@ -350,7 +350,7 @@ class AlquilerApiController extends Controller
                         if($alquilerup->lugar_entrega != "Recoger"){
                             $alquilerup->precio_envio = $request->precio_envio;
                             $alquilerup->precio_alquiler = $alquilerup->precio_alquiler +  $request->precio_envio;
-                            $alquilerup->estado_pedido = "aceptado_empresario";
+                            $alquilerup->estado_pedido = "Aceptado_empresario";
                             $alquilerup->estado_secuencia = "Inactivo";
                             $alquilerup->save();
                             return response()->json(['Alquiler aceptado correctamente' => $alquilerup], 200);
@@ -370,11 +370,39 @@ class AlquilerApiController extends Controller
 
                 case "aceptar_modificacion":
                     $alquilerup = Alquiler::find($alquiler->id);
-                    $alquilerup->estado_pedido = "aceptado_empresario";
-                    $alquilerup->estado_secuencia = "Inactivo";
-                    $alquilerup->save();
-                    return response()->json(['Alquiler aceptado con modificaciones correctamente' => $alquilerup], 200);
-                    break;
+                    if ($alquilerup){
+
+                        $relaciones = AlquilerHasProducto::where('alquiler_id', $alquilerup->id)->get();
+                        foreach ($relaciones as $relacion){
+                        
+                            $relacion->delete();
+    
+                        }
+                        $relaciones = $request->producto;
+    
+                        foreach ($relaciones as $relacion){
+    
+                            $relacion = AlquilerHasProducto::create([
+                                'alquiler_id' => $alquiler->id,
+                                'producto_id' => $producto_id,
+                                'cantidad_recibida' => $cantidad_producto,
+                                'precio' => $precio,
+                            ]);
+                        
+                        }
+    
+                        $alquilerup->estado_pedido = "Aceptado_empresario";
+                        $alquilerup->estado_secuencia = "Inactivo";
+                        $alquilerup->save();
+                        return response()->json(['Alquiler aceptado con modificaciones correctamente' => $alquilerup], 200);
+                        break;
+
+                    }else{
+
+                        return response()->json(['Alquiler no encontrado' => $alquilerup], 200);
+
+                    }
+                   
 
             }
 
@@ -431,7 +459,7 @@ class AlquilerApiController extends Controller
                             ->sum(DB::raw('alquiler_has_productos.precio * alquiler_has_productos.cantidad_recibida'));
 
                 // Actualizar el alquiler.
-                $alquiler->estado_pedido = "solicitud";
+                $alquiler->estado_pedido = "Solicitud";
                 $alquiler->metodo_pago = $request->metodo_pago;
                 $alquiler->lugar_entrega = $request->lugar_entrega;
                 $alquiler->fecha_alquiler = $request->fecha_alquiler;
@@ -479,10 +507,25 @@ class AlquilerApiController extends Controller
         $producto = Producto::find($producto_id);
         $precio = $producto->precio;
         $cantidad_producto = $request->cantidad;
-        
+
 
         $alquiler = Alquiler::where('user_id', $user->id)->where('estado_pedido', 'carrito')->first();
         if ($alquiler){
+
+            $productos_alquiler = AlquilerHasProducto::where('alquiler_id', $alquiler->id)->get();
+            foreach($productos_alquiler as $producto_alquiler){
+
+                $pr = Producto::find($producto_alquiler->producto_id);
+                if ($pr->empresa_id == $producto->empresa_id){
+                    
+
+                }else{
+                    return response()->json(['Solo puedes agregar productos de la misma empresa'], 200);
+
+                }
+
+            }
+
 
             $relacion = AlquilerHasProducto::where('alquiler_id', $alquiler->id)->where('producto_id', $producto_id)->first();
             if($relacion){
